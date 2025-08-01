@@ -1,0 +1,2765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debate Chessclock Pro | Real-time Analytics</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #1c222a;
+            --border: #30363d;
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --accent: #58a6ff;
+            --accent-gradient: linear-gradient(135deg, #58a6ff, #bd93f9);
+            --warning: #ff9f1c;
+            --critical: #f85149;
+            --team-blue: #79c0ff;
+            --team-red: #ff7b72;
+            --team-green: #7ee787;
+            --team-purple: #d2a8ff;
+            --team-yellow: #e3b341;
+            --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 25% 25%, rgba(88, 166, 255, 0.05) 0%, transparent 55%);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            position: relative;
+            padding: 1.5rem 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.75rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+        
+        .logo i {
+            font-size: 1.8rem;
+        }
+        
+        .status-bar {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            font-size: 0.9rem;
+            flex-wrap: wrap;
+            background: rgba(88, 166, 255, 0.1);
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            border: 1px solid rgba(88, 166, 255, 0.2);
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--accent);
+        }
+        
+        .status-dot.active {
+            background-color: var(--team-green);
+            box-shadow: 0 0 10px var(--team-green);
+        }
+        
+        .header-divider {
+            height: 24px;
+            width: 1px;
+            background: var(--border);
+            margin: 0 0.5rem;
+        }
+        
+        .page-header {
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 0.25rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.1;
+        }
+        
+        .subtitle {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        
+        .content-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 2rem;
+    overflow: visible; /* FIXED: allow overflow */
+}
+        
+        .video-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            display: none;
+        }
+        
+        .video-container.active {
+            display: block;
+        }
+        
+        .video-placeholder {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 1rem;
+        }
+        
+        .video-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+        
+        .youtube-embed {
+            width: 100%;
+            height: 300px;
+            border-radius: 8px;
+            border: none;
+            margin-top: 1rem;
+        }
+        
+        .speakers-scroll-container {
+    overflow-x: auto;
+    padding-bottom: 20px;
+    /* margin-bottom: -20px; ← Removed to avoid border cut off */
+    margin-bottom: 0;
+}
+
+        .speakers-grid {
+    display: grid;
+    grid-auto-columns: minmax(280px, 1fr);
+    grid-auto-flow: column;
+    gap: 1.5rem;
+    width: 100%; /* FIXED: avoid overflow */
+    min-width: 100%;
+}
+
+        @media (max-width: 768px) {
+            .speakers-grid {
+                grid-auto-flow: row;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                width: 100%;
+            }
+        }
+        
+        .speaker-card {
+    min-width: 280px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative;
+    transition: var(--transition);
+    box-shadow: var(--card-shadow);
+    overflow: visible; /* Optional: just in case internal elements overflow */
+}
+        
+        .speaker-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--accent-gradient);
+            opacity: 0;
+            transition: var(--transition);
+        }
+        
+        .speaker-card.active {
+    border-color: var(--accent);
+    animation: glow 3s infinite;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+}
+        
+        .speaker-card.active::before {
+            opacity: 1;
+        }
+        
+        .speaker-card.overlap {
+            border-color: var(--warning);
+            box-shadow: 0 0 15px rgba(255, 159, 28, 0.2);
+            animation: pulse-warning 2s infinite;
+        }
+        
+        .speaker-card.critical {
+            border-color: var(--critical);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(248, 81, 73, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(248, 81, 73, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(248, 81, 73, 0); }
+        }
+        
+        @keyframes pulse-warning {
+            0% { box-shadow: 0 0 0 0 rgba(255, 159, 28, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 159, 28, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 159, 28, 0); }
+        }
+        
+        .speaker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+        
+        .speaker-info {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+        
+        .speaker-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            border: 2px solid var(--border);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .speaker-details {
+            flex: 1;
+        }
+        
+        .speaker-name {
+            font-size: 1.35rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .edit-name {
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+        
+        .edit-name:hover {
+            color: var(--accent);
+        }
+        
+        .speaker-team {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .team-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .speaker-status {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(88, 166, 255, 0.1);
+            padding: 0.4rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+        }
+        
+        .status-indicator.active {
+            background: rgba(126, 231, 135, 0.15);
+            color: var(--team-green);
+        }
+        
+        .timer-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .timer {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+        
+        .timer.warning {
+            color: var(--warning);
+        }
+        
+        .timer.critical {
+            color: var(--critical);
+        }
+        
+        .time-limit {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: -0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .progress-container {
+            height: 10px;
+            background-color: var(--bg-tertiary);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .progress-bar {
+            height: 100%;
+            transition: width 1s linear;
+            border-radius: 5px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            white-space: nowrap;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:hover {
+            background-color: rgba(88, 166, 255, 0.1);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn.active {
+            background-color: rgba(88, 166, 255, 0.2);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        
+        .btn.warning {
+            background-color: rgba(255, 159, 28, 0.2);
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+        
+        .btn.critical {
+            background-color: rgba(248, 81, 73, 0.2);
+            border-color: var(--critical);
+            color: var(--critical);
+        }
+        
+        .control-panel {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.75rem;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: visible; /* Optional */
+}
+        
+        .panel-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 1.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .panel-title i {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .panel-section {
+            margin-bottom: 1.75rem;
+            padding-bottom: 1.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .panel-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.6rem;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.9rem;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2);
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1.75rem;
+        }
+        
+        .stat-card {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 0.25rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .mode-toggle {
+            display: flex;
+            background-color: var(--bg-tertiary);
+            border-radius: 10px;
+            padding: 5px;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mode-btn {
+            flex: 1;
+            text-align: center;
+            padding: 0.9rem;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .mode-btn.active {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(88, 166, 255, 0.3);
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1.75rem;
+        }
+        
+        .action-btn {
+            padding: 1.1rem;
+            text-align: center;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.05rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .action-btn.primary {
+            background: var(--accent-gradient);
+            color: white;
+        }
+        
+        .action-btn.primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(88, 166, 255, 0.4);
+        }
+        
+        .action-btn.secondary {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border);
+        }
+        
+        .action-btn.secondary:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+        }
+        
+        .action-btn.critical {
+            background-color: rgba(248, 81, 73, 0.15);
+            color: var(--critical);
+        }
+        
+        .action-btn.critical:hover {
+            background-color: rgba(248, 81, 73, 0.25);
+            transform: translateY(-3px);
+        }
+        
+        .team-config {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1.2rem;
+        }
+        
+        .team-btn {
+            padding: 0.85rem 0.5rem;
+            text-align: center;
+            border-radius: 10px;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.95rem;
+            font-weight: 500;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .team-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .team-btn.active {
+            background: var(--accent-gradient);
+            color: white;
+            border-color: var(--accent);
+            box-shadow: 0 5px 15px rgba(88, 166, 255, 0.3);
+        }
+        
+        .audio-input {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.2rem;
+        }
+        
+        .audio-input input {
+            flex: 1;
+        }
+        
+        .audio-input .btn {
+            flex-shrink: 0;
+            padding: 0.9rem;
+        }
+        
+        .overlap-indicator {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--warning);
+            color: black;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: none;
+            z-index: 10;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .speaker-card.overlap .overlap-indicator {
+            display: block;
+        }
+        
+        .analytics-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 1.5rem;
+            background: rgba(88, 166, 255, 0.08);
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border);
+        }
+        
+        .analytics-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .analytics-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 0.25rem;
+        }
+        
+        .analytics-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        footer {
+            padding-top: 1.5rem;
+            margin-top: auto;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .footer-link:hover {
+            color: var(--accent);
+        }
+        
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--bg-tertiary);
+            transition: .4s;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 3px;
+            background-color: var(--text-secondary);
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--accent);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+            background-color: white;
+        }
+        
+        .overlap-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .overlap-btn {
+            flex: 1;
+            text-align: center;
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+        
+        .overlap-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .overlap-btn.affirmative {
+            border-color: var(--team-blue);
+        }
+        
+        .overlap-btn.negative {
+            border-color: var(--team-red);
+        }
+        
+        .overlap-btn.active {
+            background: rgba(88, 166, 255, 0.2);
+            box-shadow: 0 0 10px rgba(88, 166, 255, 0.3);
+        }
+        
+        .overlap-btn.affirmative.active {
+            background: rgba(121, 192, 255, 0.2);
+        }
+        
+        .overlap-btn.negative.active {
+            background: rgba(255, 123, 114, 0.2);
+        }
+        
+        .ai-analysis {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(126, 231, 135, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(126, 231, 135, 0.3);
+            display: none;
+        }
+        
+        .ai-analysis.active {
+            display: block;
+        }
+        
+        .ai-analysis p {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-box {
+            background: rgba(88, 166, 255, 0.1);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .info-box h3 {
+            margin-bottom: 0.75rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .info-box ul {
+            padding-left: 1.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .info-box li {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+        
+        /* New styles for AI controls */
+        .ai-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .ai-sensitivity {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .ai-sensitivity label {
+            margin-bottom: 0;
+            min-width: 80px;
+        }
+        
+        .ai-sensitivity input[type="range"] {
+            flex: 1;
+        }
+        
+        .ai-sensitivity-value {
+            min-width: 30px;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .ai-confidence {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .confidence-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .confidence-fill {
+            height: 100%;
+            background: var(--accent-gradient);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .confidence-value {
+            min-width: 40px;
+            text-align: right;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        /* Speaker waveform visualization */
+        .waveform-container {
+            height: 60px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .waveform {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+        }
+        
+        .waveform-bar {
+            width: 3px;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: height 0.1s ease;
+        }
+        
+        /* Radial time indicator */
+        .radial-progress {
+            width: 120px;
+            height: 120px;
+            margin: 1rem auto;
+            position: relative;
+        }
+        
+        .radial-progress svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+        
+        .radial-progress circle {
+            fill: transparent;
+            stroke: var(--bg-tertiary);
+            stroke-width: 8;
+        }
+        
+        .radial-progress .progress {
+            stroke: var(--accent);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 314;
+            stroke-dashoffset: 314;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+        
+        .radial-progress .progress.warning {
+            stroke: var(--warning);
+        }
+        
+        .radial-progress .progress.critical {
+            stroke: var(--critical);
+        }
+        
+        .radial-progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+        }
+        
+        .radial-progress-text .time {
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+        
+        .radial-progress-text .label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Timeout effect */
+        .timeout-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .timeout-effect.active {
+            opacity: 1;
+        }
+        
+        .timeout-message {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 400px;
+            border: 2px solid var(--critical);
+            box-shadow: 0 0 30px rgba(248, 81, 73, 0.5);
+        }
+        
+        .timeout-message h2 {
+            color: var(--critical);
+            margin-bottom: 1rem;
+        }
+        
+        .timeout-message p {
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Manual correction panel */
+        .correction-panel {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            transform: translateY(150%);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+            max-width: 350px;
+        }
+        
+        .correction-panel.active {
+            transform: translateY(0);
+        }
+        
+        .correction-panel h3 {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .correction-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        
+        .correction-btn {
+            padding: 0.75rem;
+            border-radius: 8px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+        
+        .correction-btn:hover {
+            background: rgba(88, 166, 255, 0.1);
+            border-color: var(--accent);
+        }
+        
+        /* Name edit modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .modal-content {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-title {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        /* Specific interruption panel */
+        .interruption-panel {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            transform: translateY(150%);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+            max-width: 350px;
+        }
+        
+        .interruption-panel.active {
+            transform: translateY(0);
+        }
+        
+        .interruption-panel h3 {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .interruption-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        
+        .interruption-btn {
+            padding: 0.75rem;
+            border-radius: 8px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .interruption-btn:hover {
+            background: rgba(88, 166, 255, 0.1);
+            border-color: var(--accent);
+        }
+        
+        .interruption-btn .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        @media (max-width: 1024px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .status-bar {
+                width: 100%;
+            }
+            
+            footer {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .analytics-bar {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            .correction-panel,
+            .interruption-panel {
+                bottom: 1rem;
+                right: 1rem;
+                left: 1rem;
+                max-width: none;
+            }
+        }
+        
+        /* Glowing animation for active speaker */
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px rgba(88, 166, 255, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(88, 166, 255, 0.8); }
+            100% { box-shadow: 0 0 5px rgba(88, 166, 255, 0.5); }
+        }
+        
+        .speaker-card.active {
+            animation: glow 3s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-chess-clock"></i>
+                <span>DEBATECLOCK PRO</span>
+            </div>
+            <div class="status-bar">
+                <div class="status-indicator">
+                    <div class="status-dot active"></div>
+                    <span id="mode-status">STOPWATCH MODE</span>
+                </div>
+                <div class="header-divider"></div>
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span id="team-config-status">TEAM CONFIG: 1v1</span>
+                </div>
+                <div class="header-divider"></div>
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span id="ai-status">AI ANALYSIS: READY</span>
+                </div>
+            </div>
+        </header>
+        
+        <div class="page-header">
+            <h1>Real-Time Debate Analytics</h1>
+            <p class="subtitle">Track speaking time, detect overlaps, and analyze debate performance with AI-powered insights</p>
+        </div>
+        
+        <div class="video-container" id="video-container">
+            <div class="panel-title">
+                <i class="fas fa-video"></i>
+                <span>Live Debate Analysis</span>
+            </div>
+            <div class="video-placeholder" id="video-placeholder">
+                <i class="fab fa-youtube"></i>
+                <h3>YouTube Debate Analysis</h3>
+                <p>Enter a YouTube URL to analyze debate speaking patterns in real-time</p>
+            </div>
+            <iframe class="youtube-embed" id="youtube-embed" style="display: none;" frameborder="0" allowfullscreen></iframe>
+            <div class="waveform-container">
+                <div class="waveform" id="waveform"></div>
+            </div>
+            <div class="ai-controls">
+                <div class="ai-sensitivity">
+                    <label>Sensitivity:</label>
+                    <input type="range" id="sensitivity-slider" min="0.1" max="1" step="0.1" value="0.7">
+                    <span class="ai-sensitivity-value" id="sensitivity-value">70%</span>
+                </div>
+                <div class="ai-confidence">
+                    <span>Confidence:</span>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="confidence-fill"></div>
+                    </div>
+                    <span class="confidence-value" id="confidence-value">0%</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-wrapper">
+            <div>
+                <div class="speakers-scroll-container">
+                    <div class="speakers-grid" id="speakers-container">
+                        <!-- Speaker cards will be generated dynamically -->
+                    </div>
+                </div>
+                
+                <div class="analytics-bar">
+                    <div class="analytics-item">
+                        <div class="analytics-value" id="total-time">00:00</div>
+                        <div class="analytics-label">Total Debate Time</div>
+                    </div>
+                    <div class="analytics-item">
+                        <div class="analytics-value" id="team-lead">+00:00</div>
+                        <div class="analytics-label">Team Affirmative Lead</div>
+                    </div>
+                    <div class="analytics-item">
+                        <div class="analytics-value" id="overlap-count">0</div>
+                        <div class="analytics-label">Overlap Occurrences</div>
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <h3><i class="fas fa-info-circle"></i> Web Speech API Implementation</h3>
+                    <p>The auto mode uses the Web Speech API for real-time voice detection:</p>
+                    <ul>
+                        <li><strong>SpeechRecognition</strong>: Detects when someone starts speaking</li>
+                        <li><strong>Continuous Listening</strong>: Monitors the entire debate session</li>
+                        <li><strong>Speaker Identification</strong>: Uses unique voice patterns to identify speakers</li>
+                        <li><strong>Overlap Detection</strong>: Flags when multiple people speak simultaneously</li>
+                        <li><strong>No Server Required</strong>: All processing happens in the browser</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="control-panel">
+                <div class="panel-title">
+                    <i class="fas fa-sliders-h"></i>
+                    <span>Control Panel</span>
+                </div>
+                
+                <!-- Team Configuration -->
+                <div class="panel-section">
+                    <div class="form-group">
+                        <label><i class="fas fa-users"></i> Team Configuration</label>
+                        <div class="team-config">
+                            <div class="team-btn active" data-config="1v1">1v1</div>
+                            <div class="team-btn" data-config="2v2">2v2</div>
+                            <div class="team-btn" data-config="3v3">3v3</div>
+                            <div class="team-btn" data-config="1v3">1v3</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mode Selection -->
+                <div class="panel-section">
+                    <div class="form-group">
+                        <label><i class="fas fa-cogs"></i> Operation Mode</label>
+                        <div class="mode-toggle">
+                            <div class="mode-btn active" id="auto-mode">Auto Mode</div>
+                            <div class="mode-btn" id="manual-mode">Manual Mode</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Auto Mode Settings -->
+                    <div id="auto-settings" class="form-group">
+                        <label for="video-source"><i class="fas fa-video"></i> YouTube Debate URL</label>
+                        <div class="audio-input">
+                            <input type="text" id="video-source" placeholder="Paste YouTube URL" value="https://www.youtube.com/watch?v=debate-example">
+                            <button class="btn" id="analyze-btn"><i class="fas fa-play"></i> Analyze</button>
+                        </div>
+                        
+                        <div class="ai-analysis" id="ai-analysis">
+                            <p><i class="fas fa-brain"></i> Analyzing audio patterns in real-time...</p>
+                            <p><i class="fas fa-microphone"></i> Speaker 1 (Affirmative): <span id="confidence-speaker1">65%</span> confidence</p>
+                            <p><i class="fas fa-microphone"></i> Speaker 2 (Negative): <span id="confidence-speaker2">72%</span> confidence</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Manual Mode Settings -->
+                    <div id="manual-settings" class="form-group" style="display: none;">
+                        <label><i class="fas fa-hand-pointer"></i> Manual Controls</label>
+                        <div class="controls">
+                            <button class="btn" id="pause-all"><i class="fas fa-pause"></i> Pause All</button>
+                            <button class="btn" id="reset-all"><i class="fas fa-redo"></i> Reset All</button>
+                            <button class="btn" id="mark-interruption"><i class="fas fa-comment-exclamation"></i> Mark Interruption</button>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-people-arrows"></i> Mark Overlap</label>
+                            <p style="margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);">
+                                Select which team initiated the overlap:
+                            </p>
+                            <div class="overlap-controls">
+                                <div class="overlap-btn affirmative" data-team="affirmative">Affirmative</div>
+                                <div class="overlap-btn negative" data-team="negative">Negative</div>
+                                <div class="overlap-btn" data-team="both">Both</div>
+                            </div>
+                        </div>
+                        
+                        <p style="margin-top: 1rem; font-size: 0.95rem; color: var(--text-secondary);">
+                            <i class="fas fa-info-circle"></i> Click on speaker cards to start/stop their timers
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Time Settings -->
+                <div class="panel-section">
+                    <div class="toggle-container">
+                        <div class="toggle-label">
+                            <i class="fas fa-clock"></i>
+                            <span>Enable Time Limits</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="time-limit-toggle" >
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="form-group" id="time-limit-container" style="display: none;">
+                        <label for="time-limit"><i class="fas fa-stopwatch"></i> Time Limit per Speaker (minutes)</label>
+                        <input type="number" id="time-limit" value="5">
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <div class="action-btn primary" id="start-btn">
+                        <i class="fas fa-play"></i> Start Debate
+                    </div>
+                    <div class="action-btn critical" id="end-btn">
+                        <i class="fas fa-stop"></i> End Debate
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <div class="copyright">
+                © 2023 DebateClock Pro. All rights reserved.
+            </div>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Documentation</a>
+                <a href="#" class="footer-link">Support</a>
+                <a href="#" class="footer-link">API</a>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Timeout Effect -->
+    <div class="timeout-effect" id="timeout-effect">
+        <div class="timeout-message">
+            <h2><i class="fas fa-hourglass-end"></i> TIME OUT</h2>
+            <p>The speaker has exceeded their allotted time. The debate will now pause.</p>
+            <button class="btn" id="acknowledge-timeout">Acknowledge</button>
+        </div>
+    </div>
+    
+    <!-- Manual Correction Panel -->
+    <div class="correction-panel" id="correction-panel">
+        <h3><i class="fas fa-user-edit"></i> Manual Correction</h3>
+        <p>The AI detected speech but wasn't confident about the speaker. Please confirm who was speaking:</p>
+        <div class="correction-options" id="correction-options">
+            <!-- Options will be added dynamically -->
+        </div>
+    </div>
+    
+    <!-- Name Edit Modal -->
+    <div class="modal-overlay" id="name-edit-modal">
+        <div class="modal-content">
+            <h3 class="modal-title"><i class="fas fa-user-edit"></i> Edit Debater Name</h3>
+            <div class="form-group">
+                <label for="edit-name-input">Name</label>
+                <input type="text" id="edit-name-input">
+            </div>
+            <div class="modal-actions">
+                <button class="btn" id="cancel-edit">Cancel</button>
+                <button class="btn primary" id="save-edit">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Interruption Panel -->
+    <div class="interruption-panel" id="interruption-panel">
+        <h3><i class="fas fa-comment-exclamation"></i> Mark Interruption</h3>
+        <p>Select who interrupted the current speaker:</p>
+        <div class="interruption-options" id="interruption-options">
+            <!-- Options will be added dynamically -->
+        </div>
+    </div>
+    
+    <script>
+// Enhanced speaker data with stopwatch and voice profile functionality
+const speakers = [
+    { 
+        id: 0, 
+        name: "agent 1", 
+        team: "Team Affirmative", 
+        elapsedTime: 0,
+        timeLimit: 300,
+        isSpeaking: false, 
+        isPaused: false,
+        color: "--team-blue",
+        avatar: "AR",
+        overlapCount: 0,
+        interruptions: 0,
+        interruptedCount: 0,
+        lastStartTime: null,
+        speakingSegments: [],
+        voiceProfile: null
+    },
+    { 
+        id: 1, 
+        name: "agent 2", 
+        team: "Team Negative", 
+        elapsedTime: 0, 
+        timeLimit: 300, 
+        isSpeaking: false, 
+        isPaused: false,
+        color: "--team-red",
+        avatar: "SK",
+        overlapCount: 0,
+        interruptions: 0,
+        interruptedCount: 0,
+        lastStartTime: null,
+        speakingSegments: [],
+        voiceProfile: null
+    }
+];
+
+// App state with voice recognition enhancements
+const appState = {
+    isRunning: false,
+    isAutoMode: true,
+    currentConfig: '1v1',
+    activeOverlaps: [],
+    totalDebateTime: 0,
+    overlapCount: 0,
+    debateStartTime: null,
+    timeLimitsEnabled: false,
+    currentOverlapTeam: null,
+    sensitivity: 0.7,
+    aiConfidence: 0,
+    lastSpeechTime: null,
+    recognition: null,
+    audioContext: null,
+    analyser: null,
+    dataArray: null,
+    correctionSpeakerId: null,
+    correctionTimeout: null,
+    editingSpeakerId: null,
+    currentInterrupterId: null,
+    currentSpeakerId: null,
+    speechSamples: {}
+};
+
+// Format time as MM:SS
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Format time as HH:MM:SS
+function formatTimeLong(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Reset debate timers
+function resetDebate() {
+    speakers.forEach(speaker => {
+        speaker.elapsedTime = 0;
+        speaker.isSpeaking = false;
+        speaker.isPaused = false;
+        speaker.overlapCount = 0;
+        speaker.interruptions = 0;
+        speaker.interruptedCount = 0;
+        speaker.lastStartTime = null;
+        speaker.speakingSegments = [];
+    });
+    
+    appState.totalDebateTime = 0;
+    appState.overlapCount = 0;
+    appState.activeOverlaps = [];
+    
+    // Activate first speaker
+    speakers[0].isSpeaking = true;
+    speakers[0].lastStartTime = Date.now();
+    
+    renderSpeakers();
+    updateDebateAnalytics();
+}
+
+// Render speaker cards
+function renderSpeakers() {
+    const speakersContainer = document.getElementById('speakers-container');
+    speakersContainer.innerHTML = '';
+    
+    const visibleSpeakers = appState.currentConfig === '1v1' ? speakers.slice(0, 2) :
+                          appState.currentConfig === '2v2' ? [...speakers, 
+                                                             {id: 2, name: "Agent 3", team: "Team Affirmative", elapsedTime: 0, timeLimit: 300, isSpeaking: false, isPaused: false, color: "--team-green", avatar: "MC", overlapCount: 0, interruptions: 0, interruptedCount: 0, lastStartTime: null, speakingSegments: [], voiceProfile: null},
+                                                             {id: 3, name: "Agent 4", team: "Team Negative", elapsedTime: 0, timeLimit: 300, isSpeaking: false, isPaused: false, color: "--team-purple", avatar: "EP", overlapCount: 0, interruptions: 0, interruptedCount: 0, lastStartTime: null, speakingSegments: [], voiceProfile: null}] :
+                          appState.currentConfig === '3v3' ? [...speakers, 
+                                                             {id: 2, name: "Agent 3", team: "Team Affirmative", elapsedTime: 0, timeLimit: 300, isSpeaking: false, isPaused: false, color: "--team-green", avatar: "MC", overlapCount: 0, interruptions: 0, interruptedCount: 0, lastStartTime: null, speakingSegments: [], voiceProfile: null},
+                                                             {id: 3, name: "Agent 4", team: "Team Negative", elapsedTime: 0, timeLimit: 300, isSpeaking: false, isPaused: false, color: "--team-purple", avatar: "EP", overlapCount: 0, interruptions: 0, interruptedCount: 0, lastStartTime: null, speakingSegments: [], voiceProfile: null},
+                                                             {id: 4, name: "Jordan Lee", team: "Team Affirmative", elapsedTime: 0, timeLimit: 300, isSpeaking: false, isPaused: false, color: "--team-yellow", avatar: "JL", overlapCount: 0, interruptions: 0, interruptedCount: 0, lastStartTime: null, speakingSegments: [], voiceProfile: null},
+                                                             {id: 5, name: "Taylor Wright", team: "Team Negative", elapsedTime: 0, timeLimit: 300, isSpeaking: false, isPaused: false, color: "--team-blue", avatar: "TW", overlapCount: 0, interruptions: 0, interruptedCount: 0, lastStartTime: null, speakingSegments: [], voiceProfile: null}] :
+                          appState.currentConfig === '1v3' ? [speakers[0], speakers[1], 
+                                                             {id: 2, name: "Agent 3", team: "Team Negative", elapsedTime: 0, timeLimit: 300, isSpeaking: false, isPaused: false, color: "--team-green", avatar: "MC", overlapCount: 0, interruptions: 0, interruptedCount: 0, lastStartTime: null, speakingSegments: [], voiceProfile: null},
+                                                             {id: 3, name: "Agent 4", team: "Team Negative", elapsedTime: 0, timeLimit: 300, isSpeaking: false, isPaused: false, color: "--team-purple", avatar: "EP", overlapCount: 0, interruptions: 0, interruptedCount: 0, lastStartTime: null, speakingSegments: [], voiceProfile: null}] : 
+                          speakers;
+    
+    visibleSpeakers.forEach(speaker => {
+        const percentage = Math.min(100, (speaker.elapsedTime / speaker.timeLimit) * 100);
+        const teamColor = getComputedStyle(document.documentElement).getPropertyValue(speaker.color);
+        
+        const card = document.createElement('div');
+        card.className = `speaker-card ${speaker.isSpeaking ? 'active' : ''}`;
+        card.id = `speaker${speaker.id}`;
+        card.setAttribute('data-id', speaker.id);
+        
+        card.innerHTML = `
+            <div class="overlap-indicator">OVERLAP (${speaker.overlapCount})</div>
+            <div class="speaker-header">
+                <div class="speaker-info">
+                    <div class="speaker-avatar" style="background-color: rgba(${teamColor.replace(')', ', 0.2)').replace('rgb', 'rgba')}; color: ${teamColor};">
+                        ${speaker.avatar}
+                    </div>
+                    <div class="speaker-details">
+                        <div class="speaker-name">
+                            ${speaker.name}
+                            <i class="fas fa-pencil-alt edit-name" onclick="openNameEditModal(${speaker.id}, event)"></i>
+                        </div>
+                        <div class="speaker-team">
+                            <span class="team-indicator" style="background: ${teamColor};"></span>
+                            ${speaker.team}
+                        </div>
+                    </div>
+                </div>
+                <div class="speaker-status">
+                    <div class="status-indicator ${speaker.isSpeaking ? 'active' : ''}">
+                        <i class="fas ${speaker.isSpeaking ? 'fa-microphone' : 'fa-microphone-alt-slash'}"></i> 
+                        ${speaker.isSpeaking ? 'SPEAKING' : 'SILENT'}
+                    </div>
+                    <small style="margin-top: 0.25rem; color: var(--text-secondary);">
+                        Interruptions: ${speaker.interruptions} | Interrupted: ${speaker.interruptedCount}
+                    </small>
+                </div>
+            </div>
+            
+            <div class="radial-progress">
+                <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45"></circle>
+                    <circle class="progress ${percentage > 80 ? 'critical' : percentage > 60 ? 'warning' : ''}" 
+                            cx="50" cy="50" r="45" 
+                            stroke-dashoffset="${314 - (314 * percentage / 100)}"></circle>
+                </svg>
+                <div class="radial-progress-text">
+                    <div class="time">${formatTime(speaker.elapsedTime)}</div>
+                    <div class="label">${appState.timeLimitsEnabled ? formatTime(speaker.timeLimit - speaker.elapsedTime) + ' left' : 'speaking'}</div>
+                </div>
+            </div>
+            
+            ${appState.timeLimitsEnabled ? `
+            <div class="progress-container">
+                <div class="progress-bar" id="progress${speaker.id}" 
+                     style="width: ${percentage}%; background: ${teamColor};"></div>
+            </div>
+            ` : ''}
+            
+            <div class="controls">
+                <button class="btn" onclick="toggleSpeaker(${speaker.id})">
+                    <i class="fas fa-microphone"></i> ${speaker.isSpeaking ? 'Stop' : 'Start'}
+                </button>
+                <button class="btn" onclick="togglePause(${speaker.id})">
+                    <i class="fas ${speaker.isPaused ? 'fa-play' : 'fa-pause'}"></i> ${speaker.isPaused ? 'Resume' : 'Pause'}
+                </button>
+                ${appState.timeLimitsEnabled ? `
+                <button class="btn" onclick="addTime(${speaker.id}, 30)">
+                    <i class="fas fa-plus"></i> 30s
+                </button>
+                ` : ''}
+            </div>
+        `;
+        
+        speakersContainer.appendChild(card);
+        updateCardState(speaker);
+    });
+    
+    // Add event listeners to speaker cards
+    document.querySelectorAll('.speaker-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Only trigger if not clicking on a button or edit icon
+            if (!e.target.closest('button') && !e.target.classList.contains('edit-name')) {
+                const speakerId = parseInt(this.getAttribute('data-id'));
+                toggleSpeaker(speakerId);
+            }
+        });
+    });
+}
+
+// Open name edit modal
+function openNameEditModal(speakerId, event) {
+    event.stopPropagation();
+    const speaker = speakers.find(s => s.id === speakerId);
+    if (!speaker) return;
+    
+    appState.editingSpeakerId = speakerId;
+    document.getElementById('edit-name-input').value = speaker.name;
+    document.getElementById('name-edit-modal').classList.add('active');
+}
+
+// Save edited name
+function saveNameEdit() {
+    const newName = document.getElementById('edit-name-input').value.trim();
+    if (newName && appState.editingSpeakerId !== null) {
+        const speaker = speakers.find(s => s.id === appState.editingSpeakerId);
+        if (speaker) {
+            speaker.name = newName;
+            speaker.avatar = getInitials(newName);
+            renderSpeakers();
+        }
+    }
+    closeNameEditModal();
+}
+
+// Close name edit modal
+function closeNameEditModal() {
+    document.getElementById('name-edit-modal').classList.remove('active');
+    appState.editingSpeakerId = null;
+}
+
+// Get initials from name
+function getInitials(name) {
+    const parts = name.split(' ');
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+}
+
+// Show interruption panel
+function showInterruptionPanel() {
+    const panel = document.getElementById('interruption-panel');
+    const options = document.getElementById('interruption-options');
+    
+    // Clear previous options
+    options.innerHTML = '';
+    
+    // Get current speaker
+    const currentSpeaker = speakers.find(s => s.isSpeaking);
+    if (!currentSpeaker) {
+        alert('No speaker is currently active');
+        return;
+    }
+    
+    // Add options for other speakers
+    speakers.forEach(speaker => {
+        if (speaker.id !== currentSpeaker.id) {
+            const teamColor = getComputedStyle(document.documentElement).getPropertyValue(speaker.color);
+            
+            const btn = document.createElement('div');
+            btn.className = 'interruption-btn';
+            btn.setAttribute('data-id', speaker.id);
+            btn.innerHTML = `
+                <div class="avatar" style="background-color: ${teamColor}; color: white;">${speaker.avatar}</div>
+                <div>
+                    <div>${speaker.name}</div>
+                    <small>${speaker.team}</small>
+                </div>
+            `;
+            btn.addEventListener('click', () => {
+                markInterruption(speaker.id, currentSpeaker.id);
+                panel.classList.remove('active');
+            });
+            options.appendChild(btn);
+        }
+    });
+    
+    // Show panel
+    panel.classList.add('active');
+}
+
+// Mark specific interruption
+function markInterruption(interrupterId, interruptedId) {
+    const interrupter = speakers.find(s => s.id === interrupterId);
+    const interrupted = speakers.find(s => s.id === interruptedId);
+    
+    if (interrupter && interrupted) {
+        interrupter.interruptions++;
+        interrupted.interruptedCount++;
+        
+        // Update UI
+        renderSpeakers();
+        updateDebateAnalytics();
+        
+        // Visual feedback
+        const interrupterCard = document.getElementById(`speaker${interrupterId}`);
+        const interruptedCard = document.getElementById(`speaker${interruptedId}`);
+        
+        if (interrupterCard) interrupterCard.classList.add('overlap');
+        if (interruptedCard) interruptedCard.classList.add('overlap');
+        
+        setTimeout(() => {
+            if (interrupterCard) interrupterCard.classList.remove('overlap');
+            if (interruptedCard) interruptedCard.classList.remove('overlap');
+        }, 2000);
+    }
+}
+
+// Update card state based on time
+function updateCardState(speaker) {
+    const cardEl = document.getElementById(`speaker${speaker.id}`);
+    if (!cardEl) return;
+    
+    const timerEl = cardEl.querySelector('.timer');
+    const progressEl = cardEl.querySelector('.progress-bar');
+    const radialProgress = cardEl.querySelector('.radial-progress .progress');
+    const radialText = cardEl.querySelector('.radial-progress-text .time');
+    const radialLabel = cardEl.querySelector('.radial-progress-text .label');
+    const statusBtn = cardEl.querySelector('.speaker-status .status-indicator');
+    const overlapIndicator = cardEl.querySelector('.overlap-indicator');
+    
+    // Update timer text
+    if (radialText) radialText.textContent = formatTime(speaker.elapsedTime);
+    if (radialLabel && appState.timeLimitsEnabled) {
+        radialLabel.textContent = formatTime(speaker.timeLimit - speaker.elapsedTime) + ' left';
+    } else if (radialLabel) {
+        radialLabel.textContent = 'speaking';
+    }
+    
+    // Update radial progress
+    if (radialProgress) {
+        const percentage = Math.min(100, (speaker.elapsedTime / speaker.timeLimit) * 100);
+        radialProgress.style.strokeDashoffset = 314 - (314 * percentage / 100);
+        
+        // Update color based on time left
+        if (percentage > 80) {
+            radialProgress.classList.add('critical');
+            radialProgress.classList.remove('warning');
+        } else if (percentage > 60) {
+            radialProgress.classList.add('warning');
+            radialProgress.classList.remove('critical');
+        } else {
+            radialProgress.classList.remove('warning', 'critical');
+        }
+    }
+    
+    // Update progress bar if enabled
+    if (progressEl && appState.timeLimitsEnabled) {
+        const percentage = Math.min(100, (speaker.elapsedTime / speaker.timeLimit) * 100);
+        progressEl.style.width = `${percentage}%`;
+    }
+    
+    // Update UI based on state
+    if (speaker.isSpeaking) {
+        cardEl.classList.add('active');
+        if (statusBtn) {
+            statusBtn.innerHTML = `<i class="fas fa-microphone"></i> SPEAKING`;
+            statusBtn.classList.add('active');
+        }
+    } else {
+        cardEl.classList.remove('active');
+        if (statusBtn) {
+            statusBtn.innerHTML = `<i class="fas fa-microphone-alt-slash"></i> SILENT`;
+            statusBtn.classList.remove('active');
+        }
+    }
+    
+    // Update overlap indicator
+    if (overlapIndicator) {
+        overlapIndicator.textContent = `OVERLAP (${speaker.overlapCount})`;
+    }
+    
+    // Overlap state
+    if (appState.activeOverlaps.includes(speaker.id)) {
+        cardEl.classList.add('overlap');
+    } else {
+        cardEl.classList.remove('overlap');
+    }
+    
+    // Warning state (approaching time limit) - only if time limits are enabled
+    if (appState.timeLimitsEnabled) {
+        const timeLeft = speaker.timeLimit - speaker.elapsedTime;
+        const warningThreshold = 60; // 1 minute
+        
+        if (timeLeft < warningThreshold && timeLeft > 10) {
+            if (timerEl) timerEl.classList.add('warning');
+            cardEl.classList.remove('critical');
+        } 
+        // Critical state (less than 10 seconds)
+        else if (timeLeft <= 10 && timeLeft > 0) {
+            if (timerEl) {
+                timerEl.classList.remove('warning');
+                timerEl.classList.add('critical');
+            }
+            cardEl.classList.add('critical');
+        } 
+        // Timeout state
+        else if (timeLeft <= 0) {
+            if (timerEl) {
+                timerEl.classList.remove('warning');
+                timerEl.classList.add('critical');
+                timerEl.textContent = "TIME UP";
+            }
+            cardEl.classList.add('critical');
+            showTimeoutEffect(speaker);
+        }
+        // Normal state
+        else {
+            if (timerEl) timerEl.classList.remove('warning', 'critical');
+            cardEl.classList.remove('critical');
+        }
+    }
+}
+
+// Show timeout effect
+function showTimeoutEffect(speaker) {
+    if (!appState.isRunning) return;
+    
+    const timeoutEffect = document.getElementById('timeout-effect');
+    timeoutEffect.querySelector('h2').innerHTML = `<i class="fas fa-hourglass-end"></i> TIME OUT - ${speaker.name}`;
+    timeoutEffect.classList.add('active');
+    
+    // Pause all speakers
+    speakers.forEach(s => {
+        s.isSpeaking = false;
+        s.isPaused = true;
+        updateCardState(s);
+    });
+}
+
+// Hide timeout effect
+function hideTimeoutEffect() {
+    const timeoutEffect = document.getElementById('timeout-effect');
+    timeoutEffect.classList.remove('active');
+}
+
+// Update debate analytics
+function updateDebateAnalytics() {
+    // Calculate total debate time
+    document.getElementById('total-time').textContent = formatTime(appState.totalDebateTime);
+    
+    // Calculate team times
+    let teamAffirmativeTime = 0;
+    let teamNegativeTime = 0;
+    
+    speakers.forEach(speaker => {
+        if (speaker.team === "Team Affirmative") {
+            teamAffirmativeTime += speaker.elapsedTime;
+        } else if (speaker.team === "Team Negative") {
+            teamNegativeTime += speaker.elapsedTime;
+        }
+    });
+    
+    // Calculate team lead
+    const lead = Math.abs(teamAffirmativeTime - teamNegativeTime);
+    const leadSign = teamAffirmativeTime > teamNegativeTime ? "+" : "-";
+    document.getElementById('team-lead').textContent = `${leadSign}${formatTime(lead)}`;
+    
+    // Update overlap count
+    document.getElementById('overlap-count').textContent = appState.overlapCount;
+}
+
+// Toggle speaker state
+function toggleSpeaker(speakerId) {
+    if (!appState.isRunning) return;
+    
+    const speaker = speakers.find(s => s.id === speakerId);
+    if (!speaker) return;
+    
+    // If speaker is paused, unpause them
+    if (speaker.isPaused) {
+        speaker.isPaused = false;
+        updateCardState(speaker);
+        return;
+    }
+    
+    // Record the speaking segment if stopping
+    if (speaker.isSpeaking) {
+        if (speaker.lastStartTime) {
+            const segment = {
+                start: speaker.lastStartTime,
+                end: Date.now(),
+                duration: Math.floor((Date.now() - speaker.lastStartTime) / 1000)
+            };
+            speaker.speakingSegments.push(segment);
+            speaker.lastStartTime = null;
+        }
+    } else {
+        speaker.lastStartTime = Date.now();
+    }
+    
+    // In auto mode, only one speaker at a time
+    if (appState.isAutoMode) {
+        speakers.forEach(s => {
+            if (s.id !== speakerId && s.isSpeaking) {
+                // Record the speaking segment for the previous speaker
+                if (s.lastStartTime) {
+                    const segment = {
+                        start: s.lastStartTime,
+                        end: Date.now(),
+                        duration: Math.floor((Date.now() - s.lastStartTime) / 1000)
+                    };
+                    s.speakingSegments.push(segment);
+                    s.lastStartTime = null;
+                }
+                s.isSpeaking = false;
+                s.isPaused = false;
+                updateCardState(s);
+            }
+        });
+    }
+    
+    speaker.isSpeaking = !speaker.isSpeaking;
+    speaker.isPaused = false;
+    
+    // Check for overlaps
+    checkForOverlaps();
+    
+    updateCardState(speaker);
+}
+
+// Check for overlapping speakers
+function checkForOverlaps() {
+    const activeSpeakers = speakers.filter(s => s.isSpeaking && !s.isPaused);
+    
+    // Reset active overlaps
+    appState.activeOverlaps = [];
+    
+    // If we have more than one speaker active, it's an overlap
+    if (activeSpeakers.length > 1) {
+        // Only count as new overlap if we didn't already have these speakers overlapping
+        const isNewOverlap = !arraysEqual(
+            activeSpeakers.map(s => s.id).sort(),
+            appState.activeOverlaps.sort()
+        );
+        
+        if (isNewOverlap) {
+            appState.overlapCount++;
+            appState.activeOverlaps = activeSpeakers.map(s => s.id);
+            
+            // Update each speaker's overlap count
+            activeSpeakers.forEach(speaker => {
+                speaker.overlapCount++;
+            });
+            
+            updateDebateAnalytics();
+        }
+        
+        // Mark all overlapping speakers
+        activeSpeakers.forEach(speaker => {
+            const cardEl = document.getElementById(`speaker${speaker.id}`);
+            if (cardEl) cardEl.classList.add('overlap');
+        });
+    } else {
+        // No overlap - clear any overlap styling
+        speakers.forEach(speaker => {
+            const cardEl = document.getElementById(`speaker${speaker.id}`);
+            if (cardEl) cardEl.classList.remove('overlap');
+        });
+    }
+}
+
+// Helper function to compare arrays
+function arraysEqual(a, b) {
+    if (a === b) return true;
+    if (a == null || b == null) return false;
+    if (a.length !== b.length) return false;
+
+    for (let i = 0; i < a.length; ++i) {
+        if (a[i] !== b[i]) return false;
+    }
+    return true;
+}
+
+// Modified markInterruption function
+function markInterruption(interrupterId, interruptedId) {
+    const interrupter = speakers.find(s => s.id === interrupterId);
+    const interrupted = speakers.find(s => s.id === interruptedId);
+    
+    if (interrupter && interrupted) {
+        // Only count if not already in an overlap state
+        if (!appState.activeOverlaps.includes(interrupterId) && 
+            !appState.activeOverlaps.includes(interruptedId)) {
+            interrupter.interruptions++;
+            interrupted.interruptedCount++;
+            appState.overlapCount++;
+            
+            // Add to active overlaps to prevent double counting
+            appState.activeOverlaps = [interrupterId, interruptedId];
+            
+            updateDebateAnalytics();
+        }
+        
+        // Visual feedback
+        const interrupterCard = document.getElementById(`speaker${interrupterId}`);
+        const interruptedCard = document.getElementById(`speaker${interruptedId}`);
+        
+        if (interrupterCard) interrupterCard.classList.add('overlap');
+        if (interruptedCard) interruptedCard.classList.add('overlap');
+        
+        setTimeout(() => {
+            if (interrupterCard) interrupterCard.classList.remove('overlap');
+            if (interruptedCard) interruptedCard.classList.remove('overlap');
+            appState.activeOverlaps = [];
+        }, 2000);
+    }
+}
+
+// Toggle pause for a speaker
+function togglePause(speakerId) {
+    const speaker = speakers.find(s => s.id === speakerId);
+    if (speaker) {
+        speaker.isPaused = !speaker.isPaused;
+        
+        // Record the speaking segment if pausing
+        if (speaker.isPaused && speaker.isSpeaking && speaker.lastStartTime) {
+            const segment = {
+                start: speaker.lastStartTime,
+                end: Date.now(),
+                duration: Math.floor((Date.now() - speaker.lastStartTime) / 1000)
+            };
+            speaker.speakingSegments.push(segment);
+            speaker.lastStartTime = null;
+        }
+        // Resume speaking
+        else if (!speaker.isPaused && speaker.isSpeaking) {
+            speaker.lastStartTime = Date.now();
+        }
+        
+        updateCardState(speaker);
+        checkForOverlaps();
+    }
+}
+
+// Add time to a speaker
+function addTime(speakerId, seconds) {
+    const speaker = speakers.find(s => s.id === speakerId);
+    if (speaker) {
+        speaker.timeLimit += seconds;
+        updateCardState(speaker);
+    }
+}
+
+// Initialize speech recognition
+function initSpeechRecognition() {
+    try {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            throw new Error('Speech recognition not supported');
+        }
+
+        appState.recognition = new SpeechRecognition();
+        appState.recognition.continuous = true;
+        appState.recognition.interimResults = true;
+        appState.recognition.maxAlternatives = 3;
+
+        // Event handlers
+        appState.recognition.onstart = () => {
+            console.log('Speech recognition started');
+            document.getElementById('ai-status').textContent = 'AI ANALYSIS: LISTENING';
+        };
+
+        appState.recognition.onerror = (event) => {
+            console.error('Speech recognition error', event.error);
+            document.getElementById('ai-status').textContent = 'AI ANALYSIS: ERROR';
+            
+            // Try to restart if error wasn't fatal
+            if (event.error !== 'no-speech' && event.error !== 'audio-capture') {
+                setTimeout(() => {
+                    if (appState.isRunning && appState.isAutoMode) {
+                        appState.recognition.start();
+                    }
+                }, 1000);
+            }
+        };
+
+        appState.recognition.onend = () => {
+            console.log('Speech recognition ended');
+            if (appState.isRunning && appState.isAutoMode) {
+                setTimeout(() => {
+                    appState.recognition.start();
+                }, 500);
+            }
+        };
+
+        appState.recognition.onresult = (event) => {
+            // Update last speech time
+            appState.lastSpeechTime = Date.now();
+            
+            // Process results
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const result = event.results[i];
+                
+                if (result.isFinal) {
+                    const transcript = result[0].transcript.trim();
+                    const confidence = result[0].confidence;
+                    
+                    // Determine speaker based on voice characteristics
+                    determineSpeaker(transcript, confidence);
+                    
+                    // Update waveform visualization
+                    updateWaveform();
+                }
+            }
+        };
+
+        return true;
+    } catch (e) {
+        console.error('Speech recognition initialization failed:', e);
+        document.getElementById('ai-status').textContent = 'AI ANALYSIS: UNAVAILABLE';
+        return false;
+    }
+}
+
+// Voice training function
+function trainSpeakerVoice(speakerId) {
+    const speaker = speakers.find(s => s.id === speakerId);
+    if (!speaker) return;
+
+    // In a real app, we would capture voice samples here
+    // For this demo, we'll just simulate it
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            // Simulate collecting voice characteristics
+            speaker.voiceProfile = {
+                pitch: Math.random() * 100 + 100, // Simulated pitch
+                timbre: Math.random(), // Simulated timbre
+                speechPattern: Math.random() // Simulated speech pattern
+            };
+            resolve(true);
+        }, 2000);
+    });
+}
+
+// Determine speaker based on voice characteristics
+function determineSpeaker(transcript, confidence) {
+    // Update confidence display
+    updateConfidenceDisplay(null, confidence);
+    
+    // If we have voice profiles, try to match the speaker
+    if (speakers[0].voiceProfile && speakers[1].voiceProfile) {
+        // Simulate voice matching (in a real app, this would use actual voice analysis)
+        const speakerId = Math.random() > 0.5 ? 0 : 1;
+        const matchConfidence = Math.random() * 0.5 + 0.5; // 50-100%
+        
+        updateConfidenceDisplay(speakerId, matchConfidence);
+        
+        if (matchConfidence > appState.sensitivity) {
+            setActiveSpeaker(speakerId);
+        } else {
+            showCorrectionPanel(speakerId, matchConfidence);
+        }
+    } else {
+        // No voice profiles - use simple alternation
+        const nextSpeaker = appState.currentSpeakerId === 0 ? 1 : 0;
+        setActiveSpeaker(nextSpeaker);
+    }
+    
+    // Update transcript display (for debugging)
+    document.getElementById('ai-analysis').querySelector('p:first-child').innerHTML = 
+        `<i class="fas fa-brain"></i> Detected speech: "${transcript}" (${Math.round(confidence * 100)}% confidence)`;
+}
+
+// Set the active speaker
+function setActiveSpeaker(speakerId) {
+    if (appState.currentSpeakerId === speakerId) return;
+    
+    // Stop current speaker
+    if (appState.currentSpeakerId !== null) {
+        const currentSpeaker = speakers.find(s => s.id === appState.currentSpeakerId);
+        if (currentSpeaker && currentSpeaker.isSpeaking) {
+            toggleSpeaker(appState.currentSpeakerId);
+        }
+    }
+    
+    // Start new speaker
+    const newSpeaker = speakers.find(s => s.id === speakerId);
+    if (newSpeaker && !newSpeaker.isSpeaking) {
+        toggleSpeaker(speakerId);
+    }
+    
+    appState.currentSpeakerId = speakerId;
+}
+
+// Initialize audio visualization
+function initAudioVisualization() {
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        appState.audioContext = new AudioContext();
+        appState.analyser = appState.audioContext.createAnalyser();
+        appState.analyser.fftSize = 32;
+        
+        const bufferLength = appState.analyser.frequencyBinCount;
+        appState.dataArray = new Uint8Array(bufferLength);
+        
+        // Create microphone stream
+        navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+            .then(stream => {
+                const source = appState.audioContext.createMediaStreamSource(stream);
+                source.connect(appState.analyser);
+                updateWaveform();
+            })
+            .catch(err => {
+                console.error('Error accessing microphone:', err);
+                document.getElementById('ai-status').textContent = 'AI ANALYSIS: MIC ERROR';
+            });
+    } catch (e) {
+        console.error('AudioContext error:', e);
+    }
+}
+
+// Start debate with voice training
+async function startDebate() {
+    if (appState.isRunning) return;
+    
+    // Initialize speech recognition
+    if (!initSpeechRecognition()) {
+        alert('Speech recognition is not available in your browser. Switching to manual mode.');
+        document.getElementById('manual-mode').click();
+        return;
+    }
+    
+    // Initialize audio visualization
+    initAudioVisualization();
+    
+    // Train voice profiles (simulated)
+    document.getElementById('ai-status').textContent = 'AI ANALYSIS: TRAINING';
+    document.getElementById('ai-analysis').innerHTML = `
+        <p><i class="fas fa-brain"></i> Training voice profiles...</p>
+        <p><i class="fas fa-microphone"></i> Please wait while we analyze speaker voices</p>
+    `;
+    document.getElementById('ai-analysis').classList.add('active');
+    
+    try {
+        // Simulate voice training
+        await Promise.all([
+            trainSpeakerVoice(0),
+            trainSpeakerVoice(1)
+        ]);
+        
+        // Start recognition
+        appState.recognition.start();
+        
+        // Set initial state
+        appState.isRunning = true;
+        appState.debateStartTime = Date.now();
+        appState.totalDebateTime = 0;
+        appState.overlapCount = 0;
+        
+        // Reset speaker stats
+        speakers.forEach(speaker => {
+            speaker.elapsedTime = 0;
+            speaker.isSpeaking = false;
+            speaker.isPaused = false;
+            speaker.overlapCount = 0;
+            speaker.interruptions = 0;
+            speaker.interruptedCount = 0;
+            speaker.lastStartTime = null;
+            speaker.speakingSegments = [];
+        });
+        
+        document.getElementById('start-btn').innerHTML = '<i class="fas fa-sync"></i> Debate Running';
+        document.getElementById('start-btn').classList.add('secondary');
+        document.getElementById('start-btn').classList.remove('primary');
+        
+        document.getElementById('ai-analysis').innerHTML = `
+            <p><i class="fas fa-brain"></i> Analyzing audio patterns in real-time...</p>
+            <p><i class="fas fa-microphone"></i> Speaker 1 (Affirmative): <span id="confidence-speaker1">0%</span> confidence</p>
+            <p><i class="fas fa-microphone"></i> Speaker 2 (Negative): <span id="confidence-speaker2">0%</span> confidence</p>
+        `;
+        
+        renderSpeakers();
+        updateDebateAnalytics();
+    } catch (err) {
+        console.error('Error starting debate:', err);
+        document.getElementById('ai-status').textContent = 'AI ANALYSIS: ERROR';
+        alert('Failed to initialize speech recognition. Please try again.');
+    }
+}
+
+// End debate
+function endDebate() {
+    appState.isRunning = false;
+    document.getElementById('start-btn').innerHTML = '<i class="fas fa-play"></i> Start Debate';
+    document.getElementById('start-btn').classList.remove('secondary');
+    document.getElementById('start-btn').classList.add('primary');
+    document.getElementById('ai-analysis').classList.remove('active');
+    
+    // Stop all speakers
+    speakers.forEach(speaker => {
+        // Record the final speaking segment
+        if (speaker.isSpeaking && speaker.lastStartTime) {
+            const segment = {
+                start: speaker.lastStartTime,
+                end: Date.now(),
+                duration: Math.floor((Date.now() - speaker.lastStartTime) / 1000)
+            };
+            speaker.speakingSegments.push(segment);
+            speaker.lastStartTime = null;
+        }
+        
+        speaker.isSpeaking = false;
+        speaker.isPaused = false;
+    });
+    
+    // Stop speech recognition if running
+    if (appState.recognition) {
+        appState.recognition.stop();
+        appState.recognition = null;
+    }
+    
+    // Stop audio visualization
+    if (appState.audioContext) {
+        appState.audioContext.close();
+        appState.audioContext = null;
+    }
+    
+    renderSpeakers();
+}
+
+// Reset all timers
+function resetAll() {
+    if (confirm('Are you sure you want to reset all timers?')) {
+        resetDebate();
+    }
+}
+
+// Simulate time progression
+function simulateTime() {
+    if (!appState.isRunning) return;
+    
+    // Update total debate time
+    appState.totalDebateTime = Math.floor((Date.now() - appState.debateStartTime) / 1000);
+    
+    speakers.forEach(speaker => {
+        if (speaker.isSpeaking && !speaker.isPaused) {
+            speaker.elapsedTime++;
+        }
+        updateCardState(speaker);
+    });
+    
+    checkForOverlaps();
+    updateDebateAnalytics();
+}
+
+// Update waveform visualization
+function updateWaveform() {
+    if (!appState.analyser || !appState.isRunning || !appState.isAutoMode) return;
+    
+    appState.analyser.getByteFrequencyData(appState.dataArray);
+    
+    const waveform = document.getElementById('waveform');
+    waveform.innerHTML = '';
+    
+    for (let i = 0; i < appState.dataArray.length; i++) {
+        const value = appState.dataArray[i] / 255;
+        const bar = document.createElement('div');
+        bar.className = 'waveform-bar';
+        bar.style.height = `${value * 100}%`;
+        waveform.appendChild(bar);
+    }
+    
+    requestAnimationFrame(updateWaveform);
+}
+
+// Update confidence display
+function updateConfidenceDisplay(speakerId, confidence) {
+    if (confidence !== null) {
+        const confidencePercent = Math.round(confidence * 100);
+        document.getElementById('confidence-value').textContent = `${confidencePercent}%`;
+        document.getElementById('confidence-fill').style.width = `${confidencePercent}%`;
+        appState.aiConfidence = confidence;
+    }
+    
+    // Update individual speaker confidence
+    if (speakerId === 0) {
+        document.getElementById('confidence-speaker1').textContent = `${Math.round(appState.aiConfidence * 100)}%`;
+    } else if (speakerId === 1) {
+        document.getElementById('confidence-speaker2').textContent = `${Math.round(appState.aiConfidence * 100)}%`;
+    }
+}
+
+// Show manual correction panel
+function showCorrectionPanel(speakerId, confidence) {
+    const panel = document.getElementById('correction-panel');
+    const options = document.getElementById('correction-options');
+    
+    // Clear previous options
+    options.innerHTML = '';
+    
+    // Set current speaker
+    appState.correctionSpeakerId = speakerId;
+    
+    // Add options for each speaker
+    speakers.forEach(speaker => {
+        const btn = document.createElement('div');
+        btn.className = 'correction-btn';
+        btn.innerHTML = `
+            <div>${speaker.name}</div>
+            <small>${speaker.team}</small>
+        `;
+        btn.addEventListener('click', () => {
+            toggleSpeaker(speaker.id);
+            panel.classList.remove('active');
+            clearTimeout(appState.correctionTimeout);
+        });
+        options.appendChild(btn);
+    });
+    
+    // Add unknown option
+    const unknownBtn = document.createElement('div');
+    unknownBtn.className = 'correction-btn';
+    unknownBtn.textContent = 'Unknown Speaker';
+    unknownBtn.addEventListener('click', () => {
+        // Pause all speakers
+        speakers.forEach(s => {
+            s.isSpeaking = false;
+            s.isPaused = false;
+            updateCardState(s);
+        });
+        panel.classList.remove('active');
+        clearTimeout(appState.correctionTimeout);
+    });
+    options.appendChild(unknownBtn);
+    
+    // Show panel
+    panel.classList.add('active');
+    
+    // Auto-hide after 10 seconds
+    appState.correctionTimeout = setTimeout(() => {
+        panel.classList.remove('active');
+    }, 10000);
+}
+
+// Toggle time limits
+function toggleTimeLimits() {
+    appState.timeLimitsEnabled = !appState.timeLimitsEnabled;
+    document.getElementById('time-limit-toggle').checked = appState.timeLimitsEnabled;
+    document.getElementById('time-limit-container').style.display = 'none';
+        appState.timeLimitsEnabled ? 'block' : 'none';
+    renderSpeakers();
+}
+
+// Update sensitivity value display
+function updateSensitivityDisplay() {
+    const sensitivityValue = document.getElementById('sensitivity-value');
+    sensitivityValue.textContent = `${Math.round(appState.sensitivity * 100)}%`;
+}
+
+// Load YouTube video
+function loadYouTubeVideo(url) {
+    const videoId = extractVideoId(url);
+    if (!videoId) {
+        alert('Invalid YouTube URL');
+        return;
+    }
+    
+    const embed = document.getElementById('youtube-embed');
+    const placeholder = document.getElementById('video-placeholder');
+    
+    embed.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1`;
+    embed.style.display = 'block';
+    placeholder.style.display = 'none';
+}
+
+// Extract video ID from YouTube URL
+function extractVideoId(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    
+    return (match && match[2].length === 11) ? match[2] : null;
+}
+
+// Initialize the app
+function initApp() {
+    renderSpeakers();
+    updateDebateAnalytics();
+    updateSensitivityDisplay();
+    
+    // Check for speech recognition support
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        document.getElementById('auto-mode').disabled = true;
+        document.getElementById('auto-mode').title = "Speech recognition not supported in your browser";
+        document.getElementById('manual-mode').click();
+    }
+    
+    // Set up team configuration
+    document.querySelectorAll('.team-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.team-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            appState.currentConfig = btn.dataset.config;
+            document.getElementById('team-config-status').textContent = `TEAM CONFIG: ${btn.dataset.config.toUpperCase()}`;
+            resetDebate();
+        });
+    });
+    
+    // Set up mode toggle
+    document.getElementById('auto-mode').addEventListener('click', () => {
+        document.getElementById('auto-mode').classList.add('active');
+        document.getElementById('manual-mode').classList.remove('active');
+        document.getElementById('auto-settings').style.display = 'block';
+        document.getElementById('manual-settings').style.display = 'none';
+        appState.isAutoMode = true;
+        document.getElementById('video-container').classList.add('active');
+        document.getElementById('mode-status').textContent = 'AUTO MODE';
+        resetDebate();
+    });
+    
+    document.getElementById('manual-mode').addEventListener('click', () => {
+        document.getElementById('manual-mode').classList.add('active');
+        document.getElementById('auto-mode').classList.remove('active');
+        document.getElementById('manual-settings').style.display = 'block';
+        document.getElementById('auto-settings').style.display = 'none';
+        appState.isAutoMode = false;
+        document.getElementById('video-container').classList.remove('active');
+        document.getElementById('mode-status').textContent = 'MANUAL MODE';
+        resetDebate();
+    });
+    
+    // Set up analyze button
+    document.getElementById('analyze-btn').addEventListener('click', () => {
+        const source = document.getElementById('video-source').value;
+        if (source) {
+            loadYouTubeVideo(source);
+            document.getElementById('ai-analysis').classList.add('active');
+            startDebate();
+        } else {
+            alert('Please enter a YouTube URL');
+        }
+    });
+    
+    // Set up action buttons
+    document.getElementById('start-btn').addEventListener('click', startDebate);
+    document.getElementById('end-btn').addEventListener('click', endDebate);
+    document.getElementById('reset-all').addEventListener('click', resetAll);
+    document.getElementById('pause-all').addEventListener('click', () => {
+        speakers.forEach(speaker => {
+            speaker.isPaused = true;
+            updateCardState(speaker);
+        });
+    });
+    
+    // Set up mark interruption button
+    document.getElementById('mark-interruption').addEventListener('click', showInterruptionPanel);
+    
+    // Set up time limit toggle
+    document.getElementById('time-limit-toggle').addEventListener('change', toggleTimeLimits);
+    
+    // Set up overlap buttons
+    document.querySelectorAll('.overlap-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const team = this.getAttribute('data-team');
+            markOverlap(team);
+            
+            // Visual feedback
+            document.querySelectorAll('.overlap-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            setTimeout(() => {
+                this.classList.remove('active');
+            }, 1000);
+        });
+    });
+    
+    // Set up sensitivity slider
+    document.getElementById('sensitivity-slider').addEventListener('input', function() {
+        appState.sensitivity = parseFloat(this.value);
+        updateSensitivityDisplay();
+    });
+    
+    // Acknowledge timeout
+    document.getElementById('acknowledge-timeout').addEventListener('click', hideTimeoutEffect);
+    
+    // Name edit modal
+    document.getElementById('cancel-edit').addEventListener('click', closeNameEditModal);
+    document.getElementById('save-edit').addEventListener('click', saveNameEdit);
+    
+    // Start simulation
+    setInterval(simulateTime, 1000);
+}
+
+// Initialize when page loads
+window.addEventListener('DOMContentLoaded', initApp);
+
+// Expose functions to global scope for HTML onclick handlers
+window.toggleSpeaker = toggleSpeaker;
+window.togglePause = togglePause;
+window.addTime = addTime;
+window.markOverlap = markOverlap;
+window.openNameEditModal = openNameEditModal;
+    </script>
+</body>
+</html>
