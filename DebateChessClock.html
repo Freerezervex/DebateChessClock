@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Debate Chessclock Pro | Real-time Analytics</title>
+    <title>DebateClock Pro | Fixed 2v2 Mode</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -143,11 +143,11 @@
         }
         
         .content-wrapper {
-    display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: 2rem;
-    overflow: visible; /* FIXED: allow overflow */
-}
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 2rem;
+            overflow: visible;
+        }
         
         .video-container {
             background: var(--bg-secondary);
@@ -191,20 +191,19 @@
         }
         
         .speakers-scroll-container {
-    overflow-x: auto;
-    padding-bottom: 20px;
-    /* margin-bottom: -20px; ← Removed to avoid border cut off */
-    margin-bottom: 0;
-}
+            overflow-x: auto;
+            padding-bottom: 20px;
+            margin-bottom: 0;
+        }
 
         .speakers-grid {
-    display: grid;
-    grid-auto-columns: minmax(280px, 1fr);
-    grid-auto-flow: column;
-    gap: 1.5rem;
-    width: 100%; /* FIXED: avoid overflow */
-    min-width: 100%;
-}
+            display: grid;
+            grid-auto-columns: minmax(280px, 1fr);
+            grid-auto-flow: column;
+            gap: 1.5rem;
+            width: 100%;
+            min-width: 100%;
+        }
 
         @media (max-width: 768px) {
             .speakers-grid {
@@ -215,19 +214,19 @@
         }
         
         .speaker-card {
-    min-width: 280px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 1.5rem;
-    position: relative;
-    transition: var(--transition);
-    box-shadow: var(--card-shadow);
-    overflow: visible; /* Optional: just in case internal elements overflow */
-}
+            min-width: 280px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            transition: var(--transition);
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
         
         .speaker-card::before {
             content: '';
@@ -242,10 +241,10 @@
         }
         
         .speaker-card.active {
-    border-color: var(--accent);
-    animation: glow 3s infinite;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-}
+            border-color: var(--accent);
+            animation: glow 3s infinite;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
         
         .speaker-card.active::before {
             opacity: 1;
@@ -280,6 +279,7 @@
             align-items: flex-start;
             margin-bottom: 1.5rem;
             gap: 1rem;
+            position: relative;
         }
         
         .speaker-info {
@@ -361,6 +361,17 @@
         .status-indicator.active {
             background: rgba(126, 231, 135, 0.15);
             color: var(--team-green);
+        }
+        
+        /* Compact status indicator for multi-speaker modes */
+        .compact-mode .status-indicator {
+            padding: 0.5rem;
+            min-width: 36px;
+            justify-content: center;
+        }
+        
+        .compact-mode .status-text {
+            display: none;
         }
         
         .timer-container {
@@ -463,15 +474,15 @@
         }
         
         .control-panel {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 1.75rem;
-    box-shadow: var(--card-shadow);
-    display: flex;
-    flex-direction: column;
-    overflow: visible; /* Optional */
-}
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.75rem;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: visible;
+        }
         
         .panel-title {
             font-size: 1.35rem;
@@ -1145,7 +1156,7 @@
             border-color: var(--accent);
         }
         
-        /* Name edit modal */
+        /* Name Edit Modal */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -1255,6 +1266,220 @@
             flex-shrink: 0;
         }
         
+        /* NEW INTERRUPTION DESIGN - FIXED POSITIONING */
+        .interruption-tracker {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            gap: 4px;
+            z-index: 20;
+        }
+        
+        .interruption-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .interruptions-badge {
+            background: var(--warning);
+            color: black;
+        }
+        
+        .interrupted-badge {
+            background: var(--critical);
+            color: white;
+        }
+        
+        .interruption-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            padding: 0.5rem;
+            background: rgba(255, 159, 28, 0.1);
+            border-radius: 8px;
+        }
+        
+        .interruption-stats div {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .interruption-stats i {
+            color: var(--warning);
+        }
+        
+        /* NEW INTERRUPTION ANALYTICS SECTION */
+        .interruption-analytics {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .interruption-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .interruption-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--accent);
+        }
+        
+        .interruption-title i {
+            color: var(--warning);
+        }
+        
+        .interruption-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .speaker-interruption-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: var(--transition);
+        }
+        
+        .speaker-interruption-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .interruption-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .interruption-metric {
+            text-align: center;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        
+        .interruption-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 0.25rem;
+        }
+        
+        .interruption-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .interruption-chart {
+            display: flex;
+            align-items: flex-end;
+            height: 150px;
+            gap: 8px;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+        }
+        
+        .chart-bar {
+            flex: 1;
+            background: var(--accent);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all 0.4s ease;
+        }
+        
+        .chart-bar:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+        
+        .chart-label {
+            position: absolute;
+            bottom: -25px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .chart-value {
+            position: absolute;
+            top: -25px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.85rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Animation for chart bars */
+        @keyframes growBar {
+            from { height: 0; }
+            to { height: var(--bar-height); }
+        }
+        
+        .chart-bar {
+            animation: growBar 1s ease-out;
+        }
+        
         @media (max-width: 1024px) {
             .content-wrapper {
                 grid-template-columns: 1fr;
@@ -1291,6 +1516,10 @@
                 right: 1rem;
                 left: 1rem;
                 max-width: none;
+            }
+            
+            .interruption-stats-grid {
+                grid-template-columns: 1fr;
             }
         }
         
@@ -1386,6 +1615,33 @@
                     <div class="analytics-item">
                         <div class="analytics-value" id="overlap-count">0</div>
                         <div class="analytics-label">Overlap Occurrences</div>
+                    </div>
+                </div>
+                
+                <!-- NEW INTERRUPTION ANALYTICS SECTION -->
+                <div class="interruption-analytics">
+                    <div class="interruption-header">
+                        <div class="interruption-title">
+                            <i class="fas fa-comment-exclamation"></i>
+                            <span>Interruption Statistics</span>
+                        </div>
+                        <div class="tooltip">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltiptext">Detailed metrics on interruptions during the debate session</span>
+                        </div>
+                    </div>
+                    
+                    <div class="interruption-stats-grid" id="interruption-stats-container">
+                        <!-- Per-speaker metrics will be generated dynamically -->
+                    </div>
+                    
+                    <div class="interruption-title" style="margin-top: 1rem;">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Interruption Frequency</span>
+                    </div>
+                    
+                    <div class="interruption-chart" id="interruption-chart">
+                        <!-- Chart bars will be generated dynamically -->
                     </div>
                 </div>
                 
@@ -1562,37 +1818,111 @@
 const speakers = [
     { 
         id: 0, 
-        name: "agent 1", 
+        name: "Agent 1", 
         team: "Team Affirmative", 
         elapsedTime: 0,
         timeLimit: 300,
         isSpeaking: false, 
         isPaused: false,
         color: "--team-blue",
-        avatar: "AR",
+        avatar: "A1",
         overlapCount: 0,
         interruptions: 0,
         interruptedCount: 0,
         lastStartTime: null,
         speakingSegments: [],
-        voiceProfile: null
+        voiceProfile: null,
+        active: true  // Default active for 1v1
     },
     { 
         id: 1, 
-        name: "agent 2", 
+        name: "Agent 2", 
         team: "Team Negative", 
         elapsedTime: 0, 
         timeLimit: 300, 
         isSpeaking: false, 
         isPaused: false,
         color: "--team-red",
-        avatar: "SK",
+        avatar: "A2",
         overlapCount: 0,
         interruptions: 0,
         interruptedCount: 0,
         lastStartTime: null,
         speakingSegments: [],
-        voiceProfile: null
+        voiceProfile: null,
+        active: true  // Default active for 1v1
+    },
+    { 
+        id: 2, 
+        name: "Agent 3", 
+        team: "Team Affirmative", 
+        elapsedTime: 0, 
+        timeLimit: 300, 
+        isSpeaking: false, 
+        isPaused: false,
+        color: "--team-green",
+        avatar: "A3",
+        overlapCount: 0,
+        interruptions: 0,
+        interruptedCount: 0,
+        lastStartTime: null,
+        speakingSegments: [],
+        voiceProfile: null,
+        active: false  // Not active by default
+    },
+    { 
+        id: 3, 
+        name: "Agent 4", 
+        team: "Team Negative", 
+        elapsedTime: 0, 
+        timeLimit: 300, 
+        isSpeaking: false, 
+        isPaused: false,
+        color: "--team-purple",
+        avatar: "A4",
+        overlapCount: 0,
+        interruptions: 0,
+        interruptedCount: 0,
+        lastStartTime: null,
+        speakingSegments: [],
+        voiceProfile: null,
+        active: false  // Not active by default
+    },
+    { 
+        id: 4, 
+        name: "Agent 5", 
+        team: "Team Affirmative", 
+        elapsedTime: 0, 
+        timeLimit: 300, 
+        isSpeaking: false, 
+        isPaused: false,
+        color: "--team-yellow",
+        avatar: "A5",
+        overlapCount: 0,
+        interruptions: 0,
+        interruptedCount: 0,
+        lastStartTime: null,
+        speakingSegments: [],
+        voiceProfile: null,
+        active: false  // Not active by default
+    },
+    { 
+        id: 5, 
+        name: "Agent 6", 
+        team: "Team Negative", 
+        elapsedTime: 0, 
+        timeLimit: 300, 
+        isSpeaking: false, 
+        isPaused: false,
+        color: "--team-blue",
+        avatar: "A6",
+        overlapCount: 0,
+        interruptions: 0,
+        interruptedCount: 0,
+        lastStartTime: null,
+        speakingSegments: [],
+        voiceProfile: null,
+        active: false  // Not active by default
     }
 ];
 
@@ -1619,7 +1949,8 @@ const appState = {
     editingSpeakerId: null,
     currentInterrupterId: null,
     currentSpeakerId: null,
-    speechSamples: {}
+    speechSamples: {},
+    interruptionEvents: [] // Track interruption events for the chart
 };
 
 // Format time as MM:SS
@@ -1637,9 +1968,38 @@ function formatTimeLong(seconds) {
     return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
+// Update active agents based on current configuration
+function updateActiveAgents() {
+    // Reset all to inactive
+    speakers.forEach(s => s.active = false);
+    
+    switch(appState.currentConfig) {
+        case '1v1':
+            speakers[0].active = true;
+            speakers[1].active = true;
+            break;
+        case '2v2':
+            speakers[0].active = true;
+            speakers[1].active = true;
+            speakers[2].active = true;
+            speakers[3].active = true;
+            break;
+        case '3v3':
+            speakers.forEach(s => s.active = true);
+            break;
+        case '1v3':
+            speakers[0].active = true; // Affirmative
+            speakers[1].active = true; // Negative
+            speakers[2].active = true; // Negative
+            speakers[3].active = true; // Negative
+            break;
+    }
+}
+
 // Reset debate timers
 function resetDebate() {
-    speakers.forEach(speaker => {
+    // Only reset active speakers
+    speakers.filter(s => s.active).forEach(speaker => {
         speaker.elapsedTime = 0;
         speaker.isSpeaking = false;
         speaker.isPaused = false;
@@ -1653,6 +2013,7 @@ function resetDebate() {
     appState.totalDebateTime = 0;
     appState.overlapCount = 0;
     appState.activeOverlaps = [];
+    appState.interruptionEvents = [];
     
     // Activate first speaker
     speakers[0].isSpeaking = true;
@@ -1660,6 +2021,7 @@ function resetDebate() {
     
     renderSpeakers();
     updateDebateAnalytics();
+    updateInterruptionStats();
 }
 
 // Render speaker cards
@@ -1667,19 +2029,15 @@ function renderSpeakers() {
     const speakersContainer = document.getElementById('speakers-container');
     speakersContainer.innerHTML = '';
     
-    const visibleSpeakers = appState.currentConfig === '1v1' ? speakers.slice(0, 2) :
-                          appState.currentConfig === '2v2' ? [...speakers, 
-                                                             {id: 2, name: "Agent 3", team: "Team Affirmative", elapsedTime: 0, timeLimit: 300, isSpeaking: false, isPaused: false, color: "--team-green", avatar: "MC", overlapCount: 0, interruptions: 0, interruptedCount: 0, lastStartTime: null, speakingSegments: [], voiceProfile: null},
-                                                             {id: 3, name: "Agent 4", team: "Team Negative", elapsedTime: 0, timeLimit: 300, isSpeaking: false, isPaused: false, color: "--team-purple", avatar: "EP", overlapCount: 0, interruptions: 0, interruptedCount: 0, lastStartTime: null, speakingSegments: [], voiceProfile: null}] :
-                          appState.currentConfig === '3v3' ? [...speakers, 
-                                                             {id: 2, name: "Agent 3", team: "Team Affirmative", elapsedTime: 0, timeLimit: 300, isSpeaking: false, isPaused: false, color: "--team-green", avatar: "MC", overlapCount: 0, interruptions: 0, interruptedCount: 0, lastStartTime: null, speakingSegments: [], voiceProfile: null},
-                                                             {id: 3, name: "Agent 4", team: "Team Negative", elapsedTime: 0, timeLimit: 300, isSpeaking: false, isPaused: false, color: "--team-purple", avatar: "EP", overlapCount: 0, interruptions: 0, interruptedCount: 0, lastStartTime: null, speakingSegments: [], voiceProfile: null},
-                                                             {id: 4, name: "Jordan Lee", team: "Team Affirmative", elapsedTime: 0, timeLimit: 300, isSpeaking: false, isPaused: false, color: "--team-yellow", avatar: "JL", overlapCount: 0, interruptions: 0, interruptedCount: 0, lastStartTime: null, speakingSegments: [], voiceProfile: null},
-                                                             {id: 5, name: "Taylor Wright", team: "Team Negative", elapsedTime: 0, timeLimit: 300, isSpeaking: false, isPaused: false, color: "--team-blue", avatar: "TW", overlapCount: 0, interruptions: 0, interruptedCount: 0, lastStartTime: null, speakingSegments: [], voiceProfile: null}] :
-                          appState.currentConfig === '1v3' ? [speakers[0], speakers[1], 
-                                                             {id: 2, name: "Agent 3", team: "Team Negative", elapsedTime: 0, timeLimit: 300, isSpeaking: false, isPaused: false, color: "--team-green", avatar: "MC", overlapCount: 0, interruptions: 0, interruptedCount: 0, lastStartTime: null, speakingSegments: [], voiceProfile: null},
-                                                             {id: 3, name: "Agent 4", team: "Team Negative", elapsedTime: 0, timeLimit: 300, isSpeaking: false, isPaused: false, color: "--team-purple", avatar: "EP", overlapCount: 0, interruptions: 0, interruptedCount: 0, lastStartTime: null, speakingSegments: [], voiceProfile: null}] : 
-                          speakers;
+    // Get active speakers
+    const visibleSpeakers = speakers.filter(s => s.active);
+    
+    // Add compact class to container for multi-speaker modes
+    if (appState.currentConfig !== '1v1') {
+        speakersContainer.classList.add('compact-mode');
+    } else {
+        speakersContainer.classList.remove('compact-mode');
+    }
     
     visibleSpeakers.forEach(speaker => {
         const percentage = Math.min(100, (speaker.elapsedTime / speaker.timeLimit) * 100);
@@ -1691,7 +2049,11 @@ function renderSpeakers() {
         card.setAttribute('data-id', speaker.id);
         
         card.innerHTML = `
-            <div class="overlap-indicator">OVERLAP (${speaker.overlapCount})</div>
+            <div class="interruption-tracker">
+                ${speaker.interruptions > 0 ? `<div class="interruption-badge interruptions-badge">${speaker.interruptions}<i class="fas fa-arrow-up"></i></div>` : ''}
+                ${speaker.interruptedCount > 0 ? `<div class="interruption-badge interrupted-badge">${speaker.interruptedCount}<i class="fas fa-arrow-down"></i></div>` : ''}
+            </div>
+            
             <div class="speaker-header">
                 <div class="speaker-info">
                     <div class="speaker-avatar" style="background-color: rgba(${teamColor.replace(')', ', 0.2)').replace('rgb', 'rgba')}; color: ${teamColor};">
@@ -1709,14 +2071,16 @@ function renderSpeakers() {
                     </div>
                 </div>
                 <div class="speaker-status">
-                    <div class="status-indicator ${speaker.isSpeaking ? 'active' : ''}">
+                    <div class="status-indicator ${speaker.isSpeaking ? 'active' : ''}" title="${speaker.isSpeaking ? 'Speaking' : 'Silent'}">
                         <i class="fas ${speaker.isSpeaking ? 'fa-microphone' : 'fa-microphone-alt-slash'}"></i> 
-                        ${speaker.isSpeaking ? 'SPEAKING' : 'SILENT'}
+                        <span class="status-text">${speaker.isSpeaking ? 'SPEAKING' : 'SILENT'}</span>
                     </div>
-                    <small style="margin-top: 0.25rem; color: var(--text-secondary);">
-                        Interruptions: ${speaker.interruptions} | Interrupted: ${speaker.interruptedCount}
-                    </small>
                 </div>
+            </div>
+            
+            <div class="interruption-stats">
+                <div><i class="fas fa-comment-medical"></i> ${speaker.interruptions} initiated</div>
+                <div><i class="fas fa-comment-slash"></i> ${speaker.interruptedCount} received</div>
             </div>
             
             <div class="radial-progress">
@@ -1770,6 +2134,85 @@ function renderSpeakers() {
     });
 }
 
+// Update interruption statistics
+function updateInterruptionStats() {
+    const container = document.getElementById('interruption-stats-container');
+    container.innerHTML = '';
+    
+    // Get active speakers
+    const visibleSpeakers = speakers.filter(s => s.active);
+    
+    visibleSpeakers.forEach(speaker => {
+        const teamColor = getComputedStyle(document.documentElement).getPropertyValue(speaker.color);
+        const card = document.createElement('div');
+        card.className = 'speaker-interruption-card';
+        card.innerHTML = `
+            <div class="speaker-header">
+                <div class="speaker-info">
+                    <div class="speaker-avatar" style="background-color: rgba(${teamColor.replace(')', ', 0.2)').replace('rgb', 'rgba')}; color: ${teamColor};">
+                        ${speaker.avatar}
+                    </div>
+                    <div class="speaker-details">
+                        <div class="speaker-name">${speaker.name}</div>
+                        <div class="speaker-team">
+                            <span class="team-indicator" style="background: ${teamColor};"></span>
+                            ${speaker.team}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="interruption-metrics">
+                <div class="interruption-metric">
+                    <div class="interruption-value">${speaker.interruptions}</div>
+                    <div class="interruption-label">Initiated</div>
+                </div>
+                <div class="interruption-metric">
+                    <div class="interruption-value">${speaker.interruptedCount}</div>
+                    <div class="interruption-label">Received</div>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+    
+    updateInterruptionChart();
+}
+
+// Update interruption frequency chart
+function updateInterruptionChart() {
+    const chart = document.getElementById('interruption-chart');
+    chart.innerHTML = '';
+    
+    // Group interruptions by minute
+    const minutes = Math.max(7, Math.ceil(appState.totalDebateTime / 60) + 1);
+    const interruptionsByMinute = new Array(minutes).fill(0);
+    
+    appState.interruptionEvents.forEach(event => {
+        const minute = Math.floor(event.timestamp / 60);
+        if (minute < minutes) {
+            interruptionsByMinute[minute]++;
+        }
+    });
+    
+    // Find max interruptions for scaling
+    const maxInterruptions = Math.max(...interruptionsByMinute, 1);
+    
+    // Create chart bars
+    for (let i = 0; i < minutes; i++) {
+        const height = (interruptionsByMinute[i] / maxInterruptions) * 100;
+        const bar = document.createElement('div');
+        bar.className = 'chart-bar';
+        bar.style.setProperty('--bar-height', `${height}%`);
+        bar.style.background = i % 2 === 0 ? 'var(--team-blue)' : 'var(--team-red)';
+        bar.innerHTML = `
+            <div class="chart-value">${interruptionsByMinute[i]}</div>
+            <div class="chart-label">Min ${i+1}</div>
+        `;
+        chart.appendChild(bar);
+    }
+}
+
 // Open name edit modal
 function openNameEditModal(speakerId, event) {
     event.stopPropagation();
@@ -1790,6 +2233,7 @@ function saveNameEdit() {
             speaker.name = newName;
             speaker.avatar = getInitials(newName);
             renderSpeakers();
+            updateInterruptionStats();
         }
     }
     closeNameEditModal();
@@ -1817,7 +2261,7 @@ function showInterruptionPanel() {
     options.innerHTML = '';
     
     // Get current speaker
-    const currentSpeaker = speakers.find(s => s.isSpeaking);
+    const currentSpeaker = speakers.find(s => s.isSpeaking && s.active);
     if (!currentSpeaker) {
         alert('No speaker is currently active');
         return;
@@ -1825,7 +2269,7 @@ function showInterruptionPanel() {
     
     // Add options for other speakers
     speakers.forEach(speaker => {
-        if (speaker.id !== currentSpeaker.id) {
+        if (speaker.id !== currentSpeaker.id && speaker.active) {
             const teamColor = getComputedStyle(document.documentElement).getPropertyValue(speaker.color);
             
             const btn = document.createElement('div');
@@ -1858,10 +2302,19 @@ function markInterruption(interrupterId, interruptedId) {
     if (interrupter && interrupted) {
         interrupter.interruptions++;
         interrupted.interruptedCount++;
+        appState.overlapCount++;
+        
+        // Record interruption event for the chart
+        appState.interruptionEvents.push({
+            timestamp: appState.totalDebateTime,
+            interrupterId: interrupterId,
+            interruptedId: interruptedId
+        });
         
         // Update UI
         renderSpeakers();
         updateDebateAnalytics();
+        updateInterruptionStats();
         
         // Visual feedback
         const interrupterCard = document.getElementById(`speaker${interrupterId}`);
@@ -1882,13 +2335,11 @@ function updateCardState(speaker) {
     const cardEl = document.getElementById(`speaker${speaker.id}`);
     if (!cardEl) return;
     
-    const timerEl = cardEl.querySelector('.timer');
-    const progressEl = cardEl.querySelector('.progress-bar');
     const radialProgress = cardEl.querySelector('.radial-progress .progress');
     const radialText = cardEl.querySelector('.radial-progress-text .time');
     const radialLabel = cardEl.querySelector('.radial-progress-text .label');
     const statusBtn = cardEl.querySelector('.speaker-status .status-indicator');
-    const overlapIndicator = cardEl.querySelector('.overlap-indicator');
+    const progressEl = cardEl.querySelector('.progress-bar');
     
     // Update timer text
     if (radialText) radialText.textContent = formatTime(speaker.elapsedTime);
@@ -1925,27 +2376,15 @@ function updateCardState(speaker) {
     if (speaker.isSpeaking) {
         cardEl.classList.add('active');
         if (statusBtn) {
-            statusBtn.innerHTML = `<i class="fas fa-microphone"></i> SPEAKING`;
+            statusBtn.innerHTML = `<i class="fas fa-microphone"></i> <span class="status-text">SPEAKING</span>`;
             statusBtn.classList.add('active');
         }
     } else {
         cardEl.classList.remove('active');
         if (statusBtn) {
-            statusBtn.innerHTML = `<i class="fas fa-microphone-alt-slash"></i> SILENT`;
+            statusBtn.innerHTML = `<i class="fas fa-microphone-alt-slash"></i> <span class="status-text">SILENT</span>`;
             statusBtn.classList.remove('active');
         }
-    }
-    
-    // Update overlap indicator
-    if (overlapIndicator) {
-        overlapIndicator.textContent = `OVERLAP (${speaker.overlapCount})`;
-    }
-    
-    // Overlap state
-    if (appState.activeOverlaps.includes(speaker.id)) {
-        cardEl.classList.add('overlap');
-    } else {
-        cardEl.classList.remove('overlap');
     }
     
     // Warning state (approaching time limit) - only if time limits are enabled
@@ -1954,31 +2393,23 @@ function updateCardState(speaker) {
         const warningThreshold = 60; // 1 minute
         
         if (timeLeft < warningThreshold && timeLeft > 10) {
-            if (timerEl) timerEl.classList.add('warning');
+            cardEl.classList.add('warning');
             cardEl.classList.remove('critical');
         } 
         // Critical state (less than 10 seconds)
         else if (timeLeft <= 10 && timeLeft > 0) {
-            if (timerEl) {
-                timerEl.classList.remove('warning');
-                timerEl.classList.add('critical');
-            }
+            cardEl.classList.remove('warning');
             cardEl.classList.add('critical');
         } 
         // Timeout state
         else if (timeLeft <= 0) {
-            if (timerEl) {
-                timerEl.classList.remove('warning');
-                timerEl.classList.add('critical');
-                timerEl.textContent = "TIME UP";
-            }
+            cardEl.classList.remove('warning');
             cardEl.classList.add('critical');
             showTimeoutEffect(speaker);
         }
         // Normal state
         else {
-            if (timerEl) timerEl.classList.remove('warning', 'critical');
-            cardEl.classList.remove('critical');
+            cardEl.classList.remove('warning', 'critical');
         }
     }
 }
@@ -2014,7 +2445,7 @@ function updateDebateAnalytics() {
     let teamAffirmativeTime = 0;
     let teamNegativeTime = 0;
     
-    speakers.forEach(speaker => {
+    speakers.filter(s => s.active).forEach(speaker => {
         if (speaker.team === "Team Affirmative") {
             teamAffirmativeTime += speaker.elapsedTime;
         } else if (speaker.team === "Team Negative") {
@@ -2035,7 +2466,7 @@ function updateDebateAnalytics() {
 function toggleSpeaker(speakerId) {
     if (!appState.isRunning) return;
     
-    const speaker = speakers.find(s => s.id === speakerId);
+    const speaker = speakers.find(s => s.id === speakerId && s.active);
     if (!speaker) return;
     
     // If speaker is paused, unpause them
@@ -2062,7 +2493,7 @@ function toggleSpeaker(speakerId) {
     
     // In auto mode, only one speaker at a time
     if (appState.isAutoMode) {
-        speakers.forEach(s => {
+        speakers.filter(s => s.active).forEach(s => {
             if (s.id !== speakerId && s.isSpeaking) {
                 // Record the speaking segment for the previous speaker
                 if (s.lastStartTime) {
@@ -2092,7 +2523,7 @@ function toggleSpeaker(speakerId) {
 
 // Check for overlapping speakers
 function checkForOverlaps() {
-    const activeSpeakers = speakers.filter(s => s.isSpeaking && !s.isPaused);
+    const activeSpeakers = speakers.filter(s => s.isSpeaking && !s.isPaused && s.active);
     
     // Reset active overlaps
     appState.activeOverlaps = [];
@@ -2143,43 +2574,9 @@ function arraysEqual(a, b) {
     return true;
 }
 
-// Modified markInterruption function
-function markInterruption(interrupterId, interruptedId) {
-    const interrupter = speakers.find(s => s.id === interrupterId);
-    const interrupted = speakers.find(s => s.id === interruptedId);
-    
-    if (interrupter && interrupted) {
-        // Only count if not already in an overlap state
-        if (!appState.activeOverlaps.includes(interrupterId) && 
-            !appState.activeOverlaps.includes(interruptedId)) {
-            interrupter.interruptions++;
-            interrupted.interruptedCount++;
-            appState.overlapCount++;
-            
-            // Add to active overlaps to prevent double counting
-            appState.activeOverlaps = [interrupterId, interruptedId];
-            
-            updateDebateAnalytics();
-        }
-        
-        // Visual feedback
-        const interrupterCard = document.getElementById(`speaker${interrupterId}`);
-        const interruptedCard = document.getElementById(`speaker${interruptedId}`);
-        
-        if (interrupterCard) interrupterCard.classList.add('overlap');
-        if (interruptedCard) interruptedCard.classList.add('overlap');
-        
-        setTimeout(() => {
-            if (interrupterCard) interrupterCard.classList.remove('overlap');
-            if (interruptedCard) interruptedCard.classList.remove('overlap');
-            appState.activeOverlaps = [];
-        }, 2000);
-    }
-}
-
 // Toggle pause for a speaker
 function togglePause(speakerId) {
-    const speaker = speakers.find(s => s.id === speakerId);
+    const speaker = speakers.find(s => s.id === speakerId && s.active);
     if (speaker) {
         speaker.isPaused = !speaker.isPaused;
         
@@ -2205,7 +2602,7 @@ function togglePause(speakerId) {
 
 // Add time to a speaker
 function addTime(speakerId, seconds) {
-    const speaker = speakers.find(s => s.id === speakerId);
+    const speaker = speakers.find(s => s.id === speakerId && s.active);
     if (speaker) {
         speaker.timeLimit += seconds;
         updateCardState(speaker);
@@ -2266,9 +2663,6 @@ function initSpeechRecognition() {
                     const transcript = result[0].transcript.trim();
                     const confidence = result[0].confidence;
                     
-                    // Determine speaker based on voice characteristics
-                    determineSpeaker(transcript, confidence);
-                    
                     // Update waveform visualization
                     updateWaveform();
                 }
@@ -2280,103 +2674,6 @@ function initSpeechRecognition() {
         console.error('Speech recognition initialization failed:', e);
         document.getElementById('ai-status').textContent = 'AI ANALYSIS: UNAVAILABLE';
         return false;
-    }
-}
-
-// Voice training function
-function trainSpeakerVoice(speakerId) {
-    const speaker = speakers.find(s => s.id === speakerId);
-    if (!speaker) return;
-
-    // In a real app, we would capture voice samples here
-    // For this demo, we'll just simulate it
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            // Simulate collecting voice characteristics
-            speaker.voiceProfile = {
-                pitch: Math.random() * 100 + 100, // Simulated pitch
-                timbre: Math.random(), // Simulated timbre
-                speechPattern: Math.random() // Simulated speech pattern
-            };
-            resolve(true);
-        }, 2000);
-    });
-}
-
-// Determine speaker based on voice characteristics
-function determineSpeaker(transcript, confidence) {
-    // Update confidence display
-    updateConfidenceDisplay(null, confidence);
-    
-    // If we have voice profiles, try to match the speaker
-    if (speakers[0].voiceProfile && speakers[1].voiceProfile) {
-        // Simulate voice matching (in a real app, this would use actual voice analysis)
-        const speakerId = Math.random() > 0.5 ? 0 : 1;
-        const matchConfidence = Math.random() * 0.5 + 0.5; // 50-100%
-        
-        updateConfidenceDisplay(speakerId, matchConfidence);
-        
-        if (matchConfidence > appState.sensitivity) {
-            setActiveSpeaker(speakerId);
-        } else {
-            showCorrectionPanel(speakerId, matchConfidence);
-        }
-    } else {
-        // No voice profiles - use simple alternation
-        const nextSpeaker = appState.currentSpeakerId === 0 ? 1 : 0;
-        setActiveSpeaker(nextSpeaker);
-    }
-    
-    // Update transcript display (for debugging)
-    document.getElementById('ai-analysis').querySelector('p:first-child').innerHTML = 
-        `<i class="fas fa-brain"></i> Detected speech: "${transcript}" (${Math.round(confidence * 100)}% confidence)`;
-}
-
-// Set the active speaker
-function setActiveSpeaker(speakerId) {
-    if (appState.currentSpeakerId === speakerId) return;
-    
-    // Stop current speaker
-    if (appState.currentSpeakerId !== null) {
-        const currentSpeaker = speakers.find(s => s.id === appState.currentSpeakerId);
-        if (currentSpeaker && currentSpeaker.isSpeaking) {
-            toggleSpeaker(appState.currentSpeakerId);
-        }
-    }
-    
-    // Start new speaker
-    const newSpeaker = speakers.find(s => s.id === speakerId);
-    if (newSpeaker && !newSpeaker.isSpeaking) {
-        toggleSpeaker(speakerId);
-    }
-    
-    appState.currentSpeakerId = speakerId;
-}
-
-// Initialize audio visualization
-function initAudioVisualization() {
-    try {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        appState.audioContext = new AudioContext();
-        appState.analyser = appState.audioContext.createAnalyser();
-        appState.analyser.fftSize = 32;
-        
-        const bufferLength = appState.analyser.frequencyBinCount;
-        appState.dataArray = new Uint8Array(bufferLength);
-        
-        // Create microphone stream
-        navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-            .then(stream => {
-                const source = appState.audioContext.createMediaStreamSource(stream);
-                source.connect(appState.analyser);
-                updateWaveform();
-            })
-            .catch(err => {
-                console.error('Error accessing microphone:', err);
-                document.getElementById('ai-status').textContent = 'AI ANALYSIS: MIC ERROR';
-            });
-    } catch (e) {
-        console.error('AudioContext error:', e);
     }
 }
 
@@ -2404,10 +2701,7 @@ async function startDebate() {
     
     try {
         // Simulate voice training
-        await Promise.all([
-            trainSpeakerVoice(0),
-            trainSpeakerVoice(1)
-        ]);
+        await new Promise(resolve => setTimeout(resolve, 2000));
         
         // Start recognition
         appState.recognition.start();
@@ -2417,9 +2711,10 @@ async function startDebate() {
         appState.debateStartTime = Date.now();
         appState.totalDebateTime = 0;
         appState.overlapCount = 0;
+        appState.interruptionEvents = [];
         
         // Reset speaker stats
-        speakers.forEach(speaker => {
+        speakers.filter(s => s.active).forEach(speaker => {
             speaker.elapsedTime = 0;
             speaker.isSpeaking = false;
             speaker.isPaused = false;
@@ -2442,6 +2737,7 @@ async function startDebate() {
         
         renderSpeakers();
         updateDebateAnalytics();
+        updateInterruptionStats();
     } catch (err) {
         console.error('Error starting debate:', err);
         document.getElementById('ai-status').textContent = 'AI ANALYSIS: ERROR';
@@ -2503,7 +2799,7 @@ function simulateTime() {
     // Update total debate time
     appState.totalDebateTime = Math.floor((Date.now() - appState.debateStartTime) / 1000);
     
-    speakers.forEach(speaker => {
+    speakers.filter(s => s.active).forEach(speaker => {
         if (speaker.isSpeaking && !speaker.isPaused) {
             speaker.elapsedTime++;
         }
@@ -2512,6 +2808,38 @@ function simulateTime() {
     
     checkForOverlaps();
     updateDebateAnalytics();
+    
+    // Update interruption chart periodically
+    if (appState.totalDebateTime % 10 === 0) {
+        updateInterruptionStats();
+    }
+}
+
+// Initialize audio visualization
+function initAudioVisualization() {
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        appState.audioContext = new AudioContext();
+        appState.analyser = appState.audioContext.createAnalyser();
+        appState.analyser.fftSize = 32;
+        
+        const bufferLength = appState.analyser.frequencyBinCount;
+        appState.dataArray = new Uint8Array(bufferLength);
+        
+        // Create microphone stream
+        navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+            .then(stream => {
+                const source = appState.audioContext.createMediaStreamSource(stream);
+                source.connect(appState.analyser);
+                updateWaveform();
+            })
+            .catch(err => {
+                console.error('Error accessing microphone:', err);
+                document.getElementById('ai-status').textContent = 'AI ANALYSIS: MIC ERROR';
+            });
+    } catch (e) {
+        console.error('AudioContext error:', e);
+    }
 }
 
 // Update waveform visualization
@@ -2534,81 +2862,11 @@ function updateWaveform() {
     requestAnimationFrame(updateWaveform);
 }
 
-// Update confidence display
-function updateConfidenceDisplay(speakerId, confidence) {
-    if (confidence !== null) {
-        const confidencePercent = Math.round(confidence * 100);
-        document.getElementById('confidence-value').textContent = `${confidencePercent}%`;
-        document.getElementById('confidence-fill').style.width = `${confidencePercent}%`;
-        appState.aiConfidence = confidence;
-    }
-    
-    // Update individual speaker confidence
-    if (speakerId === 0) {
-        document.getElementById('confidence-speaker1').textContent = `${Math.round(appState.aiConfidence * 100)}%`;
-    } else if (speakerId === 1) {
-        document.getElementById('confidence-speaker2').textContent = `${Math.round(appState.aiConfidence * 100)}%`;
-    }
-}
-
-// Show manual correction panel
-function showCorrectionPanel(speakerId, confidence) {
-    const panel = document.getElementById('correction-panel');
-    const options = document.getElementById('correction-options');
-    
-    // Clear previous options
-    options.innerHTML = '';
-    
-    // Set current speaker
-    appState.correctionSpeakerId = speakerId;
-    
-    // Add options for each speaker
-    speakers.forEach(speaker => {
-        const btn = document.createElement('div');
-        btn.className = 'correction-btn';
-        btn.innerHTML = `
-            <div>${speaker.name}</div>
-            <small>${speaker.team}</small>
-        `;
-        btn.addEventListener('click', () => {
-            toggleSpeaker(speaker.id);
-            panel.classList.remove('active');
-            clearTimeout(appState.correctionTimeout);
-        });
-        options.appendChild(btn);
-    });
-    
-    // Add unknown option
-    const unknownBtn = document.createElement('div');
-    unknownBtn.className = 'correction-btn';
-    unknownBtn.textContent = 'Unknown Speaker';
-    unknownBtn.addEventListener('click', () => {
-        // Pause all speakers
-        speakers.forEach(s => {
-            s.isSpeaking = false;
-            s.isPaused = false;
-            updateCardState(s);
-        });
-        panel.classList.remove('active');
-        clearTimeout(appState.correctionTimeout);
-    });
-    options.appendChild(unknownBtn);
-    
-    // Show panel
-    panel.classList.add('active');
-    
-    // Auto-hide after 10 seconds
-    appState.correctionTimeout = setTimeout(() => {
-        panel.classList.remove('active');
-    }, 10000);
-}
-
 // Toggle time limits
 function toggleTimeLimits() {
     appState.timeLimitsEnabled = !appState.timeLimitsEnabled;
     document.getElementById('time-limit-toggle').checked = appState.timeLimitsEnabled;
-    document.getElementById('time-limit-container').style.display = 'none';
-        appState.timeLimitsEnabled ? 'block' : 'none';
+    document.getElementById('time-limit-container').style.display = appState.timeLimitsEnabled ? 'block' : 'none';
     renderSpeakers();
 }
 
@@ -2644,8 +2902,11 @@ function extractVideoId(url) {
 
 // Initialize the app
 function initApp() {
+    // Initialize active agents
+    updateActiveAgents();
     renderSpeakers();
     updateDebateAnalytics();
+    updateInterruptionStats();
     updateSensitivityDisplay();
     
     // Check for speech recognition support
@@ -2662,6 +2923,9 @@ function initApp() {
             btn.classList.add('active');
             appState.currentConfig = btn.dataset.config;
             document.getElementById('team-config-status').textContent = `TEAM CONFIG: ${btn.dataset.config.toUpperCase()}`;
+            
+            // Update active agents and reset debate
+            updateActiveAgents();
             resetDebate();
         });
     });
@@ -2706,7 +2970,7 @@ function initApp() {
     document.getElementById('end-btn').addEventListener('click', endDebate);
     document.getElementById('reset-all').addEventListener('click', resetAll);
     document.getElementById('pause-all').addEventListener('click', () => {
-        speakers.forEach(speaker => {
+        speakers.filter(s => s.active).forEach(speaker => {
             speaker.isPaused = true;
             updateCardState(speaker);
         });
@@ -2722,7 +2986,6 @@ function initApp() {
     document.querySelectorAll('.overlap-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const team = this.getAttribute('data-team');
-            markOverlap(team);
             
             // Visual feedback
             document.querySelectorAll('.overlap-btn').forEach(b => b.classList.remove('active'));
@@ -2758,7 +3021,6 @@ window.addEventListener('DOMContentLoaded', initApp);
 window.toggleSpeaker = toggleSpeaker;
 window.togglePause = togglePause;
 window.addTime = addTime;
-window.markOverlap = markOverlap;
 window.openNameEditModal = openNameEditModal;
     </script>
 </body>
